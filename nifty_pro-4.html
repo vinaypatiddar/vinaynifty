@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NIFTY PRO — Option Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#04070e;--s1:#070c18;--s2:#09101f;--border:#112035;--border2:#1a2d48;
+  --blue:#2979ff;--blue2:#448aff;--green:#00e676;--red:#ff1744;
+  --amber:#ffab00;--purple:#d500f9;--cyan:#00e5ff;--teal:#1de9b6;
+  --text:#dce8ff;--muted:#3d5570;--muted2:#5a7595;
+  --mono:'IBM Plex Mono',monospace;--head:'Barlow Condensed',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(41,121,255,0.008) 2px,rgba(41,121,255,0.008) 4px);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(41,121,255,0.06),transparent);pointer-events:none;z-index:0}
+.page{position:relative;z-index:1;padding-bottom:56px}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(90deg,#040a16,#060e20,#040a16);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:52px;box-shadow:0 1px 24px rgba(0,0,0,.7)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.logo{font-family:var(--head);font-size:22px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,#fff 30%,var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{font-size:9px;letter-spacing:2px;color:var(--muted2);background:rgba(255,255,255,.03);border:1px solid var(--border2);padding:2px 6px;border-radius:3px}
+.live-pill{display:flex;align-items:center;gap:5px;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.22);border-radius:20px;padding:2px 8px;font-size:10px;color:var(--green)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.hdr-c{text-align:center}
+.spot-val{font-family:var(--head);font-size:28px;font-weight:800;letter-spacing:1px;color:#fff}
+.spot-chg{font-size:11px}.spot-chg.up{color:var(--green)}.spot-chg.dn{color:var(--red)}
+.hdr-r{display:flex;align-items:center;gap:14px}
+.hs{text-align:right}.hs .lbl{font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}.hs .val{font-size:13px;font-weight:600}
+#hdrTime{font-size:10px;color:var(--muted2)}
+
+/* ── TOKEN BAR ── */
+.tok-bar{background:linear-gradient(90deg,#060f1c,#081425,#060f1c);border-bottom:1px solid var(--border);padding:8px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tk-l{font-size:10px;color:var(--muted2);letter-spacing:1px;white-space:nowrap}
+.tk-in{background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 11px;border-radius:5px;width:340px;outline:none;transition:border-color .2s}
+.tk-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(41,121,255,.1)}
+.tk-sel{background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 9px;border-radius:5px;cursor:pointer;outline:none}
+.vsep{width:1px;height:26px;background:var(--border2)}
+.btn{padding:5px 14px;border-radius:5px;border:none;font-family:var(--head);font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .18s}
+.btn-go{background:var(--green);color:#000}.btn-go:hover{box-shadow:0 4px 18px rgba(0,230,118,.4)}
+.btn-ref{background:var(--blue);color:#fff}.btn-ref:hover{background:var(--blue2);box-shadow:0 4px 18px rgba(41,121,255,.4)}
+.btn-auto{background:rgba(255,171,0,.1);color:var(--amber);border:1px solid rgba(255,171,0,.25)}
+.btn-auto.on{background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.3)}
+.btn-gh{background:rgba(255,255,255,.05);color:var(--muted2);border:1px solid var(--border2)}
+
+/* ── ACCT BAR ── */
+#acctBar{background:linear-gradient(90deg,#021008,#031510,#021008);border-bottom:1px solid rgba(0,230,118,.18);padding:7px 18px;display:none;align-items:center;gap:14px;animation:fadeUp .3s ease}
+#acctBar.show{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── INTEL STRIP (top KPIs) ── */
+.intel{margin:10px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.intel-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 13px}
+.intel-card .ic-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.intel-card .ic-val{font-family:var(--head);font-size:22px;font-weight:800;letter-spacing:.5px}
+.intel-card .ic-sub{font-size:10px;color:var(--muted2);margin-top:2px}
+.ic-ce .ic-val{color:var(--blue2)}.ic-pe .ic-val{color:var(--red)}.ic-diff .ic-val{color:var(--amber)}
+.ic-pcr .ic-val{color:var(--cyan)}.ic-vix .ic-val{color:var(--purple)}.ic-atm .ic-val{color:var(--amber)}
+
+/* PCR Gauge */
+.pcr-gauge-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;grid-column:span 2}
+.pcr-gauge-card .ic-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.pcr-track{position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg,rgba(255,23,68,.5) 0%,rgba(255,23,68,.3) 28%,rgba(255,171,0,.35) 40%,rgba(41,121,255,.35) 58%,rgba(0,230,118,.35) 72%,rgba(0,230,118,.6) 100%);margin-bottom:5px;overflow:visible}
+.pcr-needle{position:absolute;top:-5px;width:5px;height:22px;background:#fff;border-radius:2px;transform:translateX(-50%);transition:left .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(255,255,255,.7)}
+.pcr-zones{display:flex;justify-content:space-between;font-size:9px;color:var(--muted2);margin-bottom:4px}
+.pcr-sig{font-family:var(--head);font-size:17px;font-weight:800;margin-top:2px}
+
+/* VIX Range */
+.vix-range-card{background:var(--s2);border:1px solid rgba(213,0,249,.2);border-radius:8px;padding:10px 13px;grid-column:span 2}
+.vix-range-card .ic-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.vrl-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.vrl{border-radius:5px;padding:5px 11px;font-size:12px;font-weight:700;border-left:3px solid}
+.vrl.low{border-color:var(--green);background:rgba(0,230,118,.07);color:var(--green)}
+.vrl.mid{border-color:var(--amber);background:rgba(255,171,0,.07);color:var(--amber)}
+.vrl.high{border-color:var(--red);background:rgba(255,23,68,.07);color:var(--red)}
+.vix-formula{font-size:10px;color:var(--muted2);margin-top:5px}
+
+/* ── SR BAR ── */
+.sr-bar{margin:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap}
+.sr-chip{flex:1;min-width:110px;border-radius:7px;padding:9px 12px;border:1px solid}
+.sr-chip .sc-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.sr-chip .sc-val{font-family:var(--head);font-size:20px;font-weight:800;letter-spacing:.5px}
+.sr-chip .sc-oi{font-size:10px;color:var(--muted2);margin-top:2px}
+.sr-chip .sc-dist{font-size:10px;margin-top:1px}
+.sc-res1{border-color:rgba(255,23,68,.35);background:rgba(255,23,68,.04)}.sc-res1 .sc-val{color:var(--red)}
+.sc-res2{border-color:rgba(255,100,50,.25);background:rgba(255,100,50,.03)}.sc-res2 .sc-val{color:#ff7043}
+.sc-atm{border-color:rgba(255,171,0,.35);background:rgba(255,171,0,.05)}.sc-atm .sc-val{color:var(--amber)}
+.sc-sup1{border-color:rgba(0,230,118,.35);background:rgba(0,230,118,.04)}.sc-sup1 .sc-val{color:var(--green)}
+.sc-sup2{border-color:rgba(29,233,182,.25);background:rgba(29,233,182,.03)}.sc-sup2 .sc-val{color:var(--teal)}
+
+/* ── REVERSAL STRIP ── */
+.rev-strip{margin:0 18px 10px;background:linear-gradient(135deg,#060510,#0e0820);border:1px solid rgba(213,0,249,.2);border-radius:9px;padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rev-title{font-family:var(--head);font-size:15px;font-weight:800;letter-spacing:1px;color:var(--purple);min-width:170px}
+.rev-chip{flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:7px;padding:8px 11px}
+.rev-chip .rc-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted2);text-transform:uppercase;margin-bottom:3px}
+.rev-chip .rc-val{font-family:var(--head);font-size:15px;font-weight:800}
+.rev-chip .rc-sub{font-size:10px;color:var(--muted2);margin-top:2px;line-height:1.4}
+
+/* ── OPTION CHAIN TABLE ── */
+.chain-wrap{padding:10px 18px}
+.chain-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table.ct{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+table.ct thead tr{background:#040c1a;position:sticky;top:0;z-index:5}
+table.ct thead th{padding:8px 4px;text-align:right;font-size:9px;letter-spacing:1px;color:var(--muted2);border-bottom:1px solid var(--border2);font-family:var(--head);font-weight:700;text-transform:uppercase}
+.th-ce{background:rgba(41,121,255,.05)}.th-pe{background:rgba(255,23,68,.05)}.th-sk{background:#050e1c;color:var(--text)!important;text-align:center}
+table.ct tbody tr{border-bottom:1px solid rgba(17,32,53,.8);transition:background .1s}
+table.ct tbody tr:hover{background:rgba(41,121,255,.05)}
+table.ct tbody tr.atm-row{background:rgba(0,230,118,.04);border-top:1px solid rgba(0,230,118,.2);border-bottom:1px solid rgba(0,230,118,.2)}
+table.ct tbody tr.sr-res1{border-left:3px solid rgba(255,23,68,.6)}
+table.ct tbody tr.sr-res2{border-left:3px solid rgba(255,112,67,.5)}
+table.ct tbody tr.sr-sup1{border-left:3px solid rgba(0,230,118,.6)}
+table.ct tbody tr.sr-sup2{border-left:3px solid rgba(29,233,182,.4)}
+table.ct td{padding:5px 4px;text-align:right}
+.td-ce{background:rgba(41,121,255,.018)}.td-pe{background:rgba(255,23,68,.018)}
+.td-sk{text-align:center;font-weight:700;font-size:12px;color:var(--text);background:rgba(255,255,255,.015)}
+.td-sk.atm{color:var(--green);text-shadow:0 0 10px rgba(0,230,118,.3)}
+.atm-tag{font-size:8px;background:var(--green);color:#000;padding:1px 4px;border-radius:2px;font-family:var(--head);font-weight:800;margin-left:3px;vertical-align:middle}
+.sr-tag{font-size:8px;padding:1px 4px;border-radius:2px;font-family:var(--head);font-weight:800;margin-left:2px;vertical-align:middle}
+.sr-tag-r{background:var(--red);color:#fff}.sr-tag-s{background:var(--green);color:#000}
+.col-ltp{color:#dce8ff;font-weight:600}.col-iv{color:var(--amber)}
+.col-chg.up{color:var(--green)}.col-chg.dn{color:var(--red)}.col-chg.neu{color:var(--muted2)}
+.oi-rel{position:relative}
+.oi-bg{position:absolute;top:2px;bottom:2px;right:0;border-radius:2px;opacity:.14;pointer-events:none}
+.oi-bg.ce{background:var(--blue)}.oi-bg.pe{background:var(--red)}
+.oi-val{position:relative;z-index:1}
+.oi-pct{font-size:9px;color:var(--muted2);display:block}
+
+/* ── OI HISTORY TABLE ── */
+.oih-wrap{padding:10px 18px}
+.oih-title{font-family:var(--head);font-size:14px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;margin-bottom:10px}
+.oih-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table.oiht{width:100%;border-collapse:collapse;font-size:11px}
+table.oiht thead tr{background:#040c1a}
+table.oiht thead th{padding:8px 12px;text-align:center;font-size:9px;letter-spacing:1px;color:var(--muted2);border-bottom:1px solid var(--border2);font-family:var(--head);font-weight:700;text-transform:uppercase}
+table.oiht tbody tr{border-bottom:1px solid rgba(17,32,53,.7)}
+table.oiht tbody tr:hover{background:rgba(41,121,255,.04)}
+table.oiht tbody tr:first-child{background:rgba(0,230,118,.04)}
+table.oiht td{padding:7px 12px;text-align:center;font-size:11px}
+.pcr-bull{color:var(--green);font-weight:700}.pcr-bear{color:var(--red);font-weight:700}.pcr-neut{color:var(--amber);font-weight:700}
+.oi-rise{color:var(--green)}.oi-fall{color:var(--red)}.oi-flat{color:var(--muted2)}
+
+/* ── NEARBY S/R ZONE ── */
+.nsr-wrap{margin:0 18px 10px}
+.nsr-title{font-family:var(--head);font-size:13px;font-weight:800;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.nsr-title span{font-size:10px;color:var(--muted2);font-weight:400;letter-spacing:.5px}
+.nsr-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:6px;align-items:center}
+.nsr-col{display:flex;flex-direction:column;gap:5px}
+.nsr-chip{border-radius:7px;padding:8px 11px;border:1px solid;position:relative;overflow:hidden}
+.nsr-chip::before{content:'';position:absolute;inset:0;opacity:.06;pointer-events:none}
+.nsr-chip.near-res{border-color:rgba(255,23,68,.5);background:rgba(255,23,68,.06)}
+.nsr-chip.near-res::before{background:var(--red)}
+.nsr-chip.near-sup{border-color:rgba(0,230,118,.5);background:rgba(0,230,118,.06)}
+.nsr-chip.near-sup::before{background:var(--green)}
+.nsr-chip.far-res{border-color:rgba(255,112,67,.3);background:rgba(255,112,67,.03)}
+.nsr-chip.far-sup{border-color:rgba(29,233,182,.3);background:rgba(29,233,182,.03)}
+.nsr-chip .nc-strike{font-family:var(--head);font-size:18px;font-weight:800;letter-spacing:.5px}
+.nsr-chip.near-res .nc-strike{color:var(--red)}
+.nsr-chip.far-res .nc-strike{color:#ff7043}
+.nsr-chip.near-sup .nc-strike{color:var(--green)}
+.nsr-chip.far-sup .nc-strike{color:var(--teal)}
+.nsr-chip .nc-dist{font-size:10px;color:var(--muted2);margin-top:1px}
+.nsr-chip .nc-oi{font-size:10px;margin-top:2px}
+.nsr-chip .nc-vol{font-size:10px;color:var(--muted2)}
+.nsr-chip .nc-bar{height:3px;border-radius:2px;margin-top:4px;background:rgba(255,255,255,.08)}
+.nsr-chip .nc-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.nsr-chip.near-res .nc-bar-fill,.nsr-chip.far-res .nc-bar-fill{background:var(--red)}
+.nsr-chip.near-sup .nc-bar-fill,.nsr-chip.far-sup .nc-bar-fill{background:var(--green)}
+.nsr-spot-center{text-align:center;background:rgba(255,171,0,.06);border:1px solid rgba(255,171,0,.3);border-radius:8px;padding:10px 6px}
+.nsr-spot-center .ns-lbl{font-size:9px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase}
+.nsr-spot-center .ns-spot{font-family:var(--head);font-size:16px;font-weight:800;color:var(--amber);margin:3px 0}
+.nsr-spot-center .ns-zone{font-size:10px;font-weight:700}
+.nsr-zone-bar{margin-top:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:7px 12px;display:flex;gap:6px;align-items:center;font-size:10px;flex-wrap:wrap}
+.nsr-zone-bar .nzb-lbl{color:var(--muted2);letter-spacing:1px;text-transform:uppercase;font-size:9px}
+.nsr-zone-bar .nzb-track{flex:1;min-width:120px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(0,230,118,.4),rgba(255,171,0,.3) 50%,rgba(255,23,68,.4));position:relative}
+.nsr-zone-bar .nzb-dot{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--amber);transform:translateX(-50%);transition:left .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(255,171,0,.6)}
+.nsr-zone-bar .nzb-val{font-family:var(--head);font-size:13px;font-weight:800;color:var(--amber);white-space:nowrap}
+
+/* ── VOLUME PCR / TREND PANEL ── */
+.vol-panel{margin:0 18px 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.vol-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 13px}
+.vol-card .vc-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.vol-card .vc-val{font-family:var(--head);font-size:22px;font-weight:800;letter-spacing:.5px}
+.vol-card .vc-sub{font-size:10px;color:var(--muted2);margin-top:2px}
+.vol-trend-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;grid-column:span 2}
+.vol-trend-card .vc-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.vol-trend-row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.vol-trend-item{flex:1;min-width:130px;background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:6px;padding:8px 10px}
+.vol-trend-item .vti-lbl{font-size:9px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.vol-trend-item .vti-val{font-family:var(--head);font-size:16px;font-weight:800}
+.vol-trend-item .vti-sub{font-size:10px;color:var(--muted2);margin-top:2px;line-height:1.4}
+.vol-sparkline{display:flex;align-items:flex-end;gap:2px;height:24px;margin-top:5px}
+.vol-sparkline .vs-bar{flex:1;min-width:4px;border-radius:1px;transition:height .3s}
+.vol-sparkline .vs-bar.ce{background:var(--blue2)}.vol-sparkline .vs-bar.pe{background:var(--red)}
+
+/* ── STATUS BAR ── */
+.status-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(4,7,14,.96);border-top:1px solid var(--border);padding:5px 18px;display:flex;align-items:center;gap:10px;font-size:10px;color:var(--muted2);z-index:200;backdrop-filter:blur(10px)}
+
+/* ══ GREEK FEVER ══ */
+.gf-wrap{margin:0 18px 10px}
+.gf-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.gf-title{font-family:var(--head);font-size:15px;font-weight:800;letter-spacing:1.5px;color:var(--purple);text-transform:uppercase}
+.gf-badge{font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:20px;font-weight:700}
+.gf-badge.call{background:rgba(41,121,255,.18);color:var(--blue2);border:1px solid rgba(41,121,255,.4)}
+.gf-badge.put{background:rgba(255,23,68,.18);color:var(--red);border:1px solid rgba(255,23,68,.4)}
+.gf-badge.neutral{background:rgba(255,171,0,.18);color:var(--amber);border:1px solid rgba(255,171,0,.4)}
+.gf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.gf-card{border-radius:8px;padding:10px 13px;border:1px solid;position:relative;overflow:hidden;transition:border-color .3s}
+.gf-card::after{content:'';position:absolute;top:0;right:0;bottom:0;width:3px;border-radius:0 8px 8px 0}
+.gf-card.ce-dom{border-color:rgba(41,121,255,.35);background:rgba(41,121,255,.04)}
+.gf-card.ce-dom::after{background:var(--blue2)}
+.gf-card.pe-dom{border-color:rgba(255,23,68,.35);background:rgba(255,23,68,.04)}
+.gf-card.pe-dom::after{background:var(--red)}
+.gf-card.neut{border-color:rgba(255,171,0,.25);background:rgba(255,171,0,.03)}
+.gf-card.neut::after{background:var(--amber)}
+.gf-card .gc-lbl{font-size:9px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.gf-card .gc-greek{font-family:var(--head);font-size:13px;font-weight:800;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.gf-card .gc-bar-wrap{display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden;margin-top:5px}
+.gf-card .gc-bar-ce{background:rgba(41,121,255,.6);border-radius:3px 0 0 3px;transition:flex .5s}
+.gf-card .gc-bar-pe{background:rgba(255,23,68,.6);border-radius:0 3px 3px 0;transition:flex .5s}
+.gf-main-card{background:linear-gradient(135deg,#060310,#100620,#060310);border:1px solid rgba(213,0,249,.3);border-radius:10px;padding:14px 16px;grid-column:span 2;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.gf-main-card .gm-fever{font-family:var(--head);font-size:36px;font-weight:800;letter-spacing:2px;line-height:1}
+.gf-main-card .gm-sub{font-size:11px;color:var(--muted2);margin-top:3px;line-height:1.5}
+.gf-main-card .gm-scores{display:flex;flex-direction:column;gap:5px;flex:1}
+.gf-score-row{display:flex;align-items:center;gap:8px;font-size:10px}
+.gf-score-row .gsr-lbl{width:60px;color:var(--muted2);letter-spacing:.5px}
+.gf-score-row .gsr-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.gf-score-row .gsr-fill{height:100%;border-radius:4px;transition:width .5s}
+.gf-score-row .gsr-val{width:40px;text-align:right;font-weight:700}
+.gf-meter{width:100px;height:100px;flex-shrink:0}
+
+/* ══ SHARED OVERLAY BASE ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,5,12,.97);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(16px);overflow-y:auto;padding:16px}
+.modal-overlay.show{display:flex}
+
+/* ══ AUTH SCREENS (Login / Signup / Activate) ══ */
+.auth-shell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;width:100%}
+.auth-card{background:linear-gradient(135deg,#060d1a,#0a1428);border:1px solid var(--border2);border-radius:16px;padding:36px 40px;width:460px;max-width:96vw;box-shadow:0 0 80px rgba(41,121,255,.1)}
+.auth-logo{font-family:var(--head);font-size:30px;font-weight:800;letter-spacing:3px;background:linear-gradient(135deg,#fff 30%,var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+.auth-tagline{font-size:10px;letter-spacing:2px;color:var(--muted2);text-align:center;margin-bottom:28px;text-transform:uppercase}
+.auth-tabs{display:flex;border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin-bottom:24px}
+.auth-tab{flex:1;padding:9px;background:transparent;border:none;color:var(--muted2);font-family:var(--head);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.auth-tab.active{background:var(--blue);color:#fff}
+.auth-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px 13px;border-radius:7px;outline:none;margin-bottom:10px;transition:border-color .2s}
+.auth-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(41,121,255,.1)}
+.auth-input::placeholder{color:var(--muted);font-size:11px}
+.auth-btn{width:100%;padding:12px;border-radius:8px;border:none;font-family:var(--head);font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-top:4px}
+.auth-btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.auth-btn-primary:hover{box-shadow:0 6px 24px rgba(41,121,255,.45);transform:translateY(-1px)}
+.auth-btn-green{background:linear-gradient(135deg,#00c853,var(--green));color:#000}
+.auth-btn-green:hover{box-shadow:0 6px 24px rgba(0,230,118,.4)}
+.auth-err{font-size:11px;color:var(--red);min-height:14px;margin-bottom:8px;text-align:center}
+.auth-ok{font-size:11px;color:var(--green);min-height:14px;margin-bottom:8px;text-align:center}
+.auth-link{font-size:11px;color:var(--muted2);text-align:center;margin-top:14px}
+.auth-link span{color:var(--blue2);cursor:pointer;text-decoration:underline}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:10px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+.key-field{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:14px;padding:12px;border-radius:7px;outline:none;letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:10px;transition:border-color .2s}
+.key-field:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,230,118,.1)}
+.key-field::placeholder{text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted)}
+.demo-btn{width:100%;background:none;border:1px solid var(--border2);color:var(--muted2);font-family:var(--mono);font-size:11px;padding:8px;border-radius:7px;cursor:pointer;margin-top:8px;transition:all .2s}
+.demo-btn:hover{border-color:var(--amber);color:var(--amber)}
+.admin-hint{color:rgba(255,255,255,.07);font-size:9px;cursor:pointer;margin-top:12px;display:block;text-align:center;user-select:none}
+
+/* ══ PAYMENT SCREEN ══ */
+.pay-card{background:linear-gradient(135deg,#060d1a,#0a1428);border:1px solid var(--border2);border-radius:16px;padding:32px 36px;width:520px;max-width:96vw;box-shadow:0 0 80px rgba(41,121,255,.1)}
+.pay-title{font-family:var(--head);font-size:20px;font-weight:800;letter-spacing:2px;color:var(--cyan);margin-bottom:4px}
+.pay-sub{font-size:10px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:20px}
+.plan-chip{border-radius:9px;padding:12px 8px;border:2px solid var(--border2);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .2s;position:relative}
+.plan-chip:hover{border-color:var(--blue);background:rgba(41,121,255,.06)}
+.plan-chip.selected{border-color:var(--green);background:rgba(0,230,118,.06)}
+.plan-chip .pc-dur{font-family:var(--head);font-size:15px;font-weight:800;color:var(--text)}
+.plan-chip .pc-price{font-family:var(--head);font-size:22px;font-weight:800;color:var(--green);margin:3px 0}
+.plan-chip .pc-note{font-size:9px;color:var(--muted2)}
+.plan-chip.selected::after{content:'✓';position:absolute;top:4px;right:6px;font-size:10px;color:var(--green);font-weight:800}
+.pay-upi-box{background:rgba(0,230,118,.05);border:1px solid rgba(0,230,118,.2);border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pay-upi-box .upi-qr{width:120px;height:120px;flex-shrink:0;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pay-upi-box .upi-qr svg{width:110px;height:110px}
+.upi-details{flex:1;min-width:160px}
+.upi-details .ud-lbl{font-size:9px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:4px}
+.upi-details .ud-id{font-family:var(--head);font-size:17px;font-weight:800;color:var(--green);letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.upi-details .ud-id:hover{color:var(--cyan)}
+.upi-details .ud-name{font-size:12px;color:var(--text);margin-top:3px}
+.upi-details .ud-bank{font-size:10px;color:var(--muted2);margin-top:2px}
+.upi-details .ud-amount{font-family:var(--head);font-size:24px;font-weight:800;color:var(--amber);margin-top:8px}
+.pay-steps{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:11px;color:var(--muted2);line-height:1.9}
+.pay-steps span{color:var(--text)}
+.pay-ref-row{display:flex;gap:8px;margin-bottom:16px;align-items:center}
+.pay-ref-row input{flex:1}
+.pay-submit-btn{width:100%;padding:13px;border-radius:8px;border:none;font-family:var(--head);font-size:16px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--green),#00c853);color:#000;transition:all .2s;letter-spacing:1px}
+.pay-submit-btn:hover{box-shadow:0 6px 24px rgba(0,230,118,.4);transform:translateY(-1px)}
+.pay-back{background:none;border:1px solid var(--border2);color:var(--muted2);font-size:11px;padding:7px 14px;border-radius:5px;cursor:pointer;margin-top:10px;font-family:var(--mono);width:100%;transition:all .2s}
+.pay-back:hover{border-color:var(--muted2);color:var(--text)}
+.pending-badge{background:rgba(255,171,0,.12);border:1px solid rgba(255,171,0,.3);border-radius:20px;padding:4px 12px;font-size:10px;color:var(--amber);display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
+
+/* ══ ADMIN PANEL (full screen) ══ */
+.adm-shell{width:100%;min-height:100vh;background:var(--bg)}
+.adm-topbar{background:linear-gradient(90deg,#040a16,#07111f);border-bottom:1px solid rgba(255,171,0,.2);padding:0 20px;height:54px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.adm-topbar .at-logo{font-family:var(--head);font-size:18px;font-weight:800;letter-spacing:2px;color:var(--amber)}
+.adm-topbar .at-badge{font-size:9px;letter-spacing:2px;background:rgba(255,171,0,.1);border:1px solid rgba(255,171,0,.25);color:var(--amber);padding:2px 8px;border-radius:20px}
+.adm-nav{display:flex;gap:4px;margin-left:auto}
+.adm-nav button{background:none;border:none;color:var(--muted2);font-family:var(--head);font-size:12px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer;letter-spacing:.5px;transition:all .2s}
+.adm-nav button:hover,.adm-nav button.act{background:rgba(255,171,0,.1);color:var(--amber)}
+.adm-exit{background:rgba(255,23,68,.1)!important;color:var(--red)!important;border:1px solid rgba(255,23,68,.25)!important}
+.adm-content{padding:20px}
+.adm-section-title{font-family:var(--head);font-size:14px;font-weight:800;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.adm-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.adm-stat{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center}
+.adm-stat .as-val{font-family:var(--head);font-size:26px;font-weight:800}
+.adm-stat .as-lbl{font-size:9px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.adm-in{background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 11px;border-radius:6px;outline:none}
+.adm-in:focus{border-color:var(--amber)}
+.adm-btn{padding:8px 16px;border-radius:6px;border:none;font-family:var(--head);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.adm-btn-gen{background:var(--amber);color:#000}
+.adm-btn-green{background:var(--green);color:#000}
+.adm-btn-del{background:rgba(255,23,68,.12);color:var(--red);border:1px solid rgba(255,23,68,.3)}
+.adm-btn-blue{background:rgba(41,121,255,.15);color:var(--blue2);border:1px solid rgba(41,121,255,.3)}
+.adm-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.adm-table{width:100%;border-collapse:collapse;font-size:11px}
+.adm-table thead th{padding:8px 10px;text-align:left;font-size:9px;letter-spacing:1px;color:var(--muted2);border-bottom:1px solid var(--border2);text-transform:uppercase;background:#040c1a;position:sticky;top:54px}
+.adm-table tbody tr{border-bottom:1px solid rgba(17,32,53,.8)}
+.adm-table tbody tr:hover{background:rgba(255,255,255,.02)}
+.adm-table td{padding:8px 10px;vertical-align:middle}
+.key-active{color:var(--green)}.key-used{color:var(--amber)}.key-expired{color:var(--red)}.key-revoked{color:var(--muted2)}
+.key-mono{font-family:var(--mono);letter-spacing:2px;font-size:10px;cursor:pointer;user-select:all}
+.key-mono:hover{color:var(--cyan)}
+.adm-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.adm-tab{padding:7px 16px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--muted2);font-family:var(--head);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.adm-tab.act{background:rgba(255,171,0,.1);border-color:rgba(255,171,0,.3);color:var(--amber)}
+.pay-req-badge{padding:3px 8px;border-radius:4px;font-size:9px;font-weight:700}
+.pay-req-badge.pending{background:rgba(255,171,0,.15);color:var(--amber)}
+.pay-req-badge.approved{background:rgba(0,230,118,.15);color:var(--green)}
+.pay-req-badge.rejected{background:rgba(255,23,68,.15);color:var(--red)}
+.upi-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.15);border-radius:8px;margin-bottom:10px}
+.gen-output{background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.2);border-radius:7px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:1.5px;word-break:break-all;display:none;margin-top:8px}
+.sdot{width:5px;height:5px;border-radius:50%}
+.sdot.ok{background:var(--green);box-shadow:0 0 5px var(--green)}.sdot.err{background:var(--red)}.sdot.load{background:var(--amber);animation:blink .8s infinite}
+.spinner{display:inline-block;width:10px;height:10px;border:2px solid rgba(41,121,255,.2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     AUTH MODAL (Login / Signup / Activate)
+══════════════════════════════════════════ -->
+<div class="modal-overlay show" id="authModal">
+  <div class="auth-shell">
+
+    <!-- ── SCREEN: LOGIN / SIGNUP ── -->
+    <div id="screenAuth" class="auth-card">
+      <div class="auth-logo">NIFTY PRO</div>
+      <div class="auth-tagline">Option Intelligence Platform</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <input class="auth-input" id="loginEmail" type="email" placeholder="Email address"/>
+        <input class="auth-input" id="loginPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')userLogin()"/>
+        <div class="auth-err" id="loginErr"></div>
+        <button class="auth-btn auth-btn-primary" onclick="userLogin()">🔑 LOGIN</button>
+        <div class="auth-link">Forgot password? <span onclick="alert('Contact admin to reset.')">Reset here</span></div>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signupForm" style="display:none">
+        <input class="auth-input" id="signName" placeholder="Full name"/>
+        <input class="auth-input" id="signEmail" type="email" placeholder="Email address"/>
+        <input class="auth-input" id="signPhone" placeholder="Phone / WhatsApp (optional)"/>
+        <input class="auth-input" id="signPass" type="password" placeholder="Create password (min 6 chars)"/>
+        <input class="auth-input" id="signPass2" type="password" placeholder="Confirm password" onkeydown="if(event.key==='Enter')userSignup()"/>
+        <div class="auth-err" id="signupErr"></div>
+        <div class="auth-ok" id="signupOk"></div>
+        <button class="auth-btn auth-btn-green" onclick="userSignup()">🚀 CREATE ACCOUNT</button>
+      </div>
+
+      <div class="auth-divider">or</div>
+      <button class="demo-btn" onclick="enterDemo()">Continue in Demo Mode (limited features)</button>
+      <span class="admin-hint" onclick="showAdminLogin()">●</span>
+    </div>
+
+    <!-- ── SCREEN: CHOOSE PLAN & PAY ── -->
+    <div id="screenPay" class="pay-card" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div>
+          <div class="pay-title">💳 Purchase License</div>
+          <div class="pay-sub">Select a plan and complete payment</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:var(--muted2)" id="payUserName"></div>
+      </div>
+      <div class="plan-grid" id="planGrid">
+        <div class="plan-chip" onclick="selectPlan(this,30,199)"><div class="pc-dur">1 Month</div><div class="pc-price">₹199</div><div class="pc-note">30 days</div></div>
+        <div class="plan-chip" onclick="selectPlan(this,90,499)"><div class="pc-dur">3 Months</div><div class="pc-price">₹499</div><div class="pc-note">Save 16%</div></div>
+        <div class="plan-chip selected" onclick="selectPlan(this,180,799)"><div class="pc-dur">6 Months</div><div class="pc-price">₹799</div><div class="pc-note">Best value</div></div>
+        <div class="plan-chip" onclick="selectPlan(this,365,1299)"><div class="pc-dur">1 Year</div><div class="pc-price">₹1299</div><div class="pc-note">Save 45%</div></div>
+        <div class="plan-chip" onclick="selectPlan(this,9999,2499)"><div class="pc-dur">Lifetime</div><div class="pc-price">₹2499</div><div class="pc-note">One time</div></div>
+      </div>
+
+      <!-- UPI / QR Payment -->
+      <div class="pay-upi-box">
+        <div class="pay-upi-box" style="all:unset;display:flex;gap:16px;align-items:center;flex-wrap:wrap;width:100%">
+          <div class="pay-upi-box" style="all:unset">
+            <div style="width:120px;height:120px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+              <canvas id="qrCanvas" width="110" height="110"></canvas>
+            </div>
+          </div>
+          <div class="upi-details">
+            <div class="ud-lbl">UPI ID — Tap to copy</div>
+            <div class="ud-id" id="dispUpiId" onclick="copyUPI()">
+              <span id="upiIdText">loading...</span>
+              <span style="font-size:10px;opacity:.6">📋</span>
+            </div>
+            <div class="ud-name" id="dispUpiName">—</div>
+            <div class="ud-bank" id="dispUpiBank">—</div>
+            <div class="ud-amount" id="payAmountDisp">₹799</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-steps">
+        <b style="color:var(--cyan)">How to pay:</b><br>
+        <span>1. Open any UPI app (GPay / PhonePe / Paytm / BHIM)</span><br>
+        <span>2. Scan the QR or pay to the UPI ID above</span><br>
+        <span>3. Enter the exact amount shown</span><br>
+        <span>4. Copy the <b>Transaction / UTR number</b> from your app</span><br>
+        <span>5. Paste it below and submit — your key will be sent after admin approval</span>
+      </div>
+
+      <div class="pay-ref-row">
+        <input class="auth-input adm-in" id="utrInput" placeholder="Paste UPI Transaction / UTR number here…" style="margin-bottom:0;flex:1"/>
+      </div>
+      <div class="auth-err" id="payErr"></div>
+      <div class="auth-ok" id="payOk"></div>
+      <button class="pay-submit-btn" onclick="submitPayment()">✅ SUBMIT PAYMENT PROOF</button>
+      <button class="pay-back" onclick="showScreen('screenAuth')">← Back to Login</button>
+    </div>
+
+    <!-- ── SCREEN: PENDING APPROVAL ── -->
+    <div id="screenPending" class="auth-card" style="display:none;text-align:center">
+      <div class="auth-logo" style="margin-bottom:6px">⏳</div>
+      <div style="font-family:var(--head);font-size:18px;font-weight:800;color:var(--amber);margin-bottom:8px;letter-spacing:1px">PAYMENT SUBMITTED</div>
+      <div class="pending-badge"><span style="animation:blink 1s infinite;display:inline-block">●</span> Awaiting Admin Approval</div>
+      <div style="font-size:11px;color:var(--muted2);line-height:1.8;margin-bottom:20px">
+        Your payment proof has been submitted.<br>
+        Admin will verify and send your license key<br>
+        via email/WhatsApp within a few hours.
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:11px">
+        <div style="color:var(--muted2);margin-bottom:4px">Your submitted UTR</div>
+        <div id="pendingUTR" style="font-family:var(--mono);color:var(--cyan);font-size:13px;letter-spacing:1px">—</div>
+      </div>
+      <div class="auth-divider">Already have a key?</div>
+      <input class="key-field" id="actKeyIn" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="fmtKey(this)" onkeydown="if(event.key==='Enter')activateLicense()"/>
+      <div class="auth-err" id="actErr"></div>
+      <div class="auth-ok" id="actOk"></div>
+      <button class="auth-btn auth-btn-green" onclick="activateLicense()">⚡ ACTIVATE KEY</button>
+      <button class="demo-btn" onclick="enterDemo()">Continue in Demo Mode</button>
+    </div>
+
+    <!-- ── SCREEN: ACTIVATE KEY (logged in, no key) ── -->
+    <div id="screenActivate" class="auth-card" style="display:none;text-align:center">
+      <div class="auth-logo" style="margin-bottom:6px">🔐</div>
+      <div style="font-family:var(--head);font-size:16px;font-weight:800;color:var(--cyan);margin-bottom:6px;letter-spacing:1px">ENTER LICENSE KEY</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:18px">Enter the key you received after payment</div>
+      <input class="key-field" id="actKeyIn2" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="fmtKey(this)" onkeydown="if(event.key==='Enter')activateLicense2()"/>
+      <div class="auth-err" id="actErr2"></div>
+      <div class="auth-ok" id="actOk2"></div>
+      <button class="auth-btn auth-btn-green" style="margin-bottom:10px" onclick="activateLicense2()">⚡ ACTIVATE</button>
+      <button class="auth-btn auth-btn-primary" onclick="showScreen('screenPay')">💳 Buy a License</button>
+      <button class="demo-btn" onclick="enterDemo()">Continue in Demo Mode</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ADMIN PANEL (full screen overlay)
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="adminModal">
+  <!-- Admin Login -->
+  <div id="admLoginScreen" class="auth-card" style="text-align:center">
+    <div class="auth-logo" style="margin-bottom:4px">🛡</div>
+    <div style="font-family:var(--head);font-size:16px;color:var(--amber);letter-spacing:2px;margin-bottom:20px">ADMIN LOGIN</div>
+    <input class="auth-input" id="admUser" placeholder="Admin username"/>
+    <input class="auth-input" id="admPass" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    <div class="auth-err" id="admLoginErr"></div>
+    <button class="auth-btn auth-btn-primary" style="background:var(--amber);color:#000" onclick="adminLogin()">LOGIN</button>
+    <button class="demo-btn" style="margin-top:10px" onclick="closeAdminModal()">✕ Cancel</button>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admDashScreen" class="adm-shell" style="display:none">
+    <div class="adm-topbar">
+      <div class="at-logo">NIFTY PRO</div>
+      <div class="at-badge">ADMIN</div>
+      <div class="adm-nav">
+        <button onclick="admTab('tabKeys')" id="navKeys" class="act">🗝 Keys</button>
+        <button onclick="admTab('tabUsers')" id="navUsers">👥 Users</button>
+        <button onclick="admTab('tabPayments')" id="navPayments">💰 Payments</button>
+        <button onclick="admTab('tabSettings')" id="navSettings">⚙️ Settings</button>
+        <button class="adm-exit" onclick="adminLogout()">✕ Exit</button>
+      </div>
+    </div>
+    <div class="adm-content">
+
+      <!-- STATS ROW -->
+      <div class="adm-stats-row">
+        <div class="adm-stat"><div class="as-val" id="stTotal" style="color:var(--cyan)">0</div><div class="as-lbl">Total Keys</div></div>
+        <div class="adm-stat"><div class="as-val" id="stActive" style="color:var(--green)">0</div><div class="as-lbl">Active</div></div>
+        <div class="adm-stat"><div class="as-val" id="stUsed" style="color:var(--amber)">0</div><div class="as-lbl">Used</div></div>
+        <div class="adm-stat"><div class="as-val" id="stExpired" style="color:var(--red)">0</div><div class="as-lbl">Expired</div></div>
+        <div class="adm-stat"><div class="as-val" id="stUsers" style="color:var(--blue2)">0</div><div class="as-lbl">Users</div></div>
+        <div class="adm-stat"><div class="as-val" id="stPending" style="color:var(--amber)">0</div><div class="as-lbl">Pending Pay</div></div>
+      </div>
+
+      <!-- TAB: KEYS -->
+      <div id="tabKeys">
+        <div class="adm-section-title">🗝 License Key Management</div>
+        <div class="adm-row">
+          <select class="adm-in" id="genPlan" style="flex:0 0 130px">
+            <option value="30">30 Days</option>
+            <option value="90">90 Days</option>
+            <option value="180">6 Months</option>
+            <option value="365">1 Year</option>
+            <option value="9999">Lifetime</option>
+          </select>
+          <input class="adm-in" id="genNote" placeholder="Customer name / order note" style="flex:1"/>
+          <input class="adm-in" id="genCount" type="number" min="1" max="50" value="1" style="flex:0 0 70px"/>
+          <button class="adm-btn adm-btn-gen" onclick="generateKeys()">+ GENERATE</button>
+        </div>
+        <div class="gen-output" id="genOutput"></div>
+        <div style="margin:12px 0 8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input class="adm-in" id="keySearch" placeholder="Search keys / notes…" oninput="renderAdminKeys()" style="flex:1;max-width:260px"/>
+          <select class="adm-in" id="keyFilter" onchange="renderAdminKeys()" style="flex:0 0 120px">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="used">Used</option>
+            <option value="expired">Expired</option>
+            <option value="revoked">Revoked</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto;border:1px solid var(--border);border-radius:8px">
+          <table class="adm-table">
+            <thead><tr><th>KEY</th><th>STATUS</th><th>PLAN</th><th>CUSTOMER</th><th>CREATED</th><th>EXPIRES</th><th>USED ON</th><th>ACTION</th></tr></thead>
+            <tbody id="admKeysTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: USERS -->
+      <div id="tabUsers" style="display:none">
+        <div class="adm-section-title">👥 Registered Users</div>
+        <div style="overflow-x:auto;border:1px solid var(--border);border-radius:8px">
+          <table class="adm-table">
+            <thead><tr><th>NAME</th><th>EMAIL</th><th>PHONE</th><th>REGISTERED</th><th>STATUS</th><th>LICENSE</th><th>ACTION</th></tr></thead>
+            <tbody id="admUsersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: PAYMENTS -->
+      <div id="tabPayments" style="display:none">
+        <div class="adm-section-title">💰 Payment Requests</div>
+        <div style="overflow-x:auto;border:1px solid var(--border);border-radius:8px">
+          <table class="adm-table">
+            <thead><tr><th>USER</th><th>PLAN</th><th>AMOUNT</th><th>UTR / REF</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
+            <tbody id="admPaysTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: SETTINGS -->
+      <div id="tabSettings" style="display:none">
+        <div class="adm-section-title">⚙️ Payment Details &amp; UPI Settings</div>
+        <div class="upi-edit-row">
+          <div style="font-size:10px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;width:100%;margin-bottom:4px">Admin UPI &amp; Payment Info</div>
+          <input class="adm-in" id="cfgUpiId" placeholder="UPI ID (e.g. yourname@upi)" style="flex:2"/>
+          <input class="adm-in" id="cfgUpiName" placeholder="Account holder name" style="flex:1.5"/>
+          <input class="adm-in" id="cfgUpiBank" placeholder="Bank / Description" style="flex:1.5"/>
+          <button class="adm-btn adm-btn-gen" onclick="saveUPISettings()">SAVE</button>
+        </div>
+        <div class="upi-edit-row" style="margin-top:8px">
+          <div style="font-size:10px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;width:100%;margin-bottom:4px">Plan Pricing (₹)</div>
+          <input class="adm-in" id="cfgP30" placeholder="30d price" style="flex:1"/>
+          <input class="adm-in" id="cfgP90" placeholder="90d price" style="flex:1"/>
+          <input class="adm-in" id="cfgP180" placeholder="180d price" style="flex:1"/>
+          <input class="adm-in" id="cfgP365" placeholder="365d price" style="flex:1"/>
+          <input class="adm-in" id="cfgPLife" placeholder="Lifetime price" style="flex:1"/>
+          <button class="adm-btn adm-btn-gen" onclick="savePriceSettings()">SAVE</button>
+        </div>
+        <div style="font-size:10px;color:var(--green);margin-top:8px" id="settingsSavedMsg"></div>
+        <!-- Admin password change -->
+        <div class="adm-section-title" style="margin-top:20px">🔐 Change Admin Password</div>
+        <div class="adm-row">
+          <input class="adm-in" id="newAdmPass" type="password" placeholder="New password" style="flex:1"/>
+          <input class="adm-in" id="newAdmPass2" type="password" placeholder="Confirm new password" style="flex:1"/>
+          <button class="adm-btn adm-btn-gen" onclick="changeAdminPass()">CHANGE</button>
+        </div>
+        <div style="font-size:10px;color:var(--green)" id="passChangeMsg"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="page">
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="logo">NIFTY PRO</div>
+    <div class="badge">OPTION INTELLIGENCE</div>
+    <div class="live-pill"><div class="dot"></div><span id="liveLabel">DEMO</span></div>
+  </div>
+  <div class="hdr-c">
+    <div class="spot-val" id="spotVal">24,756.00</div>
+    <div class="spot-chg up" id="spotChg">▲ +143.20 (+0.58%)</div>
+  </div>
+  <div class="hdr-r">
+    <div class="hs"><div class="lbl">VIX</div><div class="val" id="vixVal" style="color:var(--purple)">—</div></div>
+    <div class="hs"><div class="lbl">PCR</div><div class="val" id="pcrHdr" style="color:var(--cyan)">—</div></div>
+    <div class="hs"><div class="lbl">ATM IV</div><div class="val" id="atmIVHdr" style="color:var(--amber)">—</div></div>
+    <div id="hdrTime">--:--:--</div>
+  </div>
+</header>
+
+<!-- TOKEN BAR -->
+<div class="tok-bar">
+  <span class="tk-l">ACCESS TOKEN</span>
+  <input type="password" class="tk-in" id="tkIn" placeholder="Paste Upstox access_token — leave blank for demo mode…"/>
+  <button class="btn btn-go" id="connectBtn" onclick="connectLive()">⚡ CONNECT</button>
+  <div class="vsep"></div>
+  <span class="tk-l">EXPIRY</span>
+  <select class="tk-sel" id="expSel"><option value="">— connect first —</option></select>
+  <span class="tk-l">RANGE</span>
+  <select class="tk-sel" id="rngSel">
+    <option value="1500">±1500</option>
+    <option value="1000">±1000</option>
+    <option value="500">±500</option>
+  </select>
+  <div class="vsep"></div>
+  <button class="btn btn-ref" onclick="doFetch()">↻ REFRESH</button>
+  <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">⏱ AUTO 5s</button>
+  <button class="btn btn-gh" onclick="loadDemo()" style="color:var(--amber);border-color:rgba(255,171,0,.3)">DEMO</button>
+</div>
+
+<!-- ACCOUNT BAR -->
+<div id="acctBar">
+  <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#000" id="acctAv">U</div>
+  <div><div style="font-family:var(--head);font-size:14px;font-weight:700;color:var(--green)" id="acctName">—</div><div style="font-size:10px;color:var(--muted2)" id="acctMeta">—</div></div>
+  <div style="margin-left:auto;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);padding:3px 10px;border-radius:20px;font-size:10px;color:var(--green)">✓ LIVE</div>
+</div>
+
+<!-- ═══ INTEL STRIP: OI Totals + PCR + VIX ═══ -->
+<div class="intel">
+  <div class="intel-card ic-ce">
+    <div class="ic-lbl">Total Call OI</div>
+    <div class="ic-val" id="totCeOI">—</div>
+    <div class="ic-sub" id="totCeVol">Vol: —</div>
+  </div>
+  <div class="intel-card ic-pe">
+    <div class="ic-lbl">Total Put OI</div>
+    <div class="ic-val" id="totPeOI">—</div>
+    <div class="ic-sub" id="totPeVol">Vol: —</div>
+  </div>
+  <div class="intel-card ic-diff">
+    <div class="ic-lbl">Put − Call OI %</div>
+    <div class="ic-val" id="oiDiffPct">—</div>
+    <div class="ic-sub" id="oiDiffNote">—</div>
+  </div>
+  <div class="intel-card ic-pcr">
+    <div class="ic-lbl">PCR (OI Ratio)</div>
+    <div class="ic-val" id="pcrBig">—</div>
+    <div class="ic-sub" id="pcrNote">Put/Call OI</div>
+  </div>
+  <div class="intel-card ic-vix">
+    <div class="ic-lbl">India VIX</div>
+    <div class="ic-val" id="vixBig">—</div>
+    <div class="ic-sub" id="vixNote">—</div>
+  </div>
+  <div class="intel-card ic-atm">
+    <div class="ic-lbl">ATM Strike</div>
+    <div class="ic-val" id="atmBig">—</div>
+    <div class="ic-sub" id="atmNote">Nearest strike</div>
+  </div>
+
+  <!-- PCR GAUGE -->
+  <div class="pcr-gauge-card">
+    <div class="ic-lbl">PCR Prediction Signal</div>
+    <div class="pcr-track"><div class="pcr-needle" id="pcrNeedle" style="left:50%"></div></div>
+    <div class="pcr-zones"><span style="color:var(--red)">BEAR &lt;0.7</span><span style="color:var(--amber)">NEUTRAL 0.7–1.2</span><span style="color:var(--green)">BULL &gt;1.2</span></div>
+    <div class="pcr-sig" id="pcrSig" style="color:var(--amber)">— AWAITING DATA —</div>
+    <div style="font-size:10px;color:var(--muted2);margin-top:2px" id="pcrSigDetail">Connect or load demo to compute signal</div>
+  </div>
+
+  <!-- VIX RANGE -->
+  <div class="vix-range-card">
+    <div class="ic-lbl">📐 Today's Expected Range (VIX Formula)</div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div><div style="font-size:9px;color:var(--muted2)">Daily Move ±</div><div style="font-family:var(--head);font-size:26px;font-weight:800;color:var(--purple)" id="vixMove">—</div></div>
+      <div class="vrl-row">
+        <div class="vrl low">🟢 Low: <span id="vixLow" style="font-family:var(--head);font-size:14px">—</span></div>
+        <div class="vrl mid">🟡 Spot: <span id="vixSpot" style="font-family:var(--head);font-size:14px">—</span></div>
+        <div class="vrl high">🔴 High: <span id="vixHigh" style="font-family:var(--head);font-size:14px">—</span></div>
+      </div>
+    </div>
+    <div class="vix-formula" id="vixFormula">Formula: (VIX / √252) × Spot = Daily Expected Move</div>
+  </div>
+</div>
+
+<!-- ═══ SUPPORT & RESISTANCE CHIPS ═══ -->
+<div class="sr-bar">
+  <div class="sr-chip sc-res2">
+    <div class="sc-lbl">🟠 Resistance 2</div>
+    <div class="sc-val" id="scRes2">—</div>
+    <div class="sc-oi" id="scRes2OI">OI: —</div>
+    <div class="sc-oi" id="scRes2Vol">Vol: —</div>
+    <div class="sc-oi" id="scRes2Chg">OI Chg: —</div>
+    <div class="sc-dist" style="color:var(--red)" id="scRes2Dist">— pts above</div>
+  </div>
+  <div class="sr-chip sc-res1">
+    <div class="sc-lbl">🔴 Resistance 1 (Key Wall)</div>
+    <div class="sc-val" id="scRes1">—</div>
+    <div class="sc-oi" id="scRes1OI">OI: —</div>
+    <div class="sc-oi" id="scRes1Vol">Vol: —</div>
+    <div class="sc-oi" id="scRes1Chg">OI Chg: —</div>
+    <div class="sc-dist" style="color:var(--red)" id="scRes1Dist">— pts above</div>
+  </div>
+  <div class="sr-chip sc-atm">
+    <div class="sc-lbl">⚡ ATM / Spot</div>
+    <div class="sc-val" id="scAtm">—</div>
+    <div class="sc-oi" id="scAtmNote">Current Level</div>
+    <div class="sc-dist" id="scTrend" style="color:var(--amber)">—</div>
+  </div>
+  <div class="sr-chip sc-sup1">
+    <div class="sc-lbl">🟢 Support 1 (Key Floor)</div>
+    <div class="sc-val" id="scSup1">—</div>
+    <div class="sc-oi" id="scSup1OI">OI: —</div>
+    <div class="sc-oi" id="scSup1Vol">Vol: —</div>
+    <div class="sc-oi" id="scSup1Chg">OI Chg: —</div>
+    <div class="sc-dist" style="color:var(--green)" id="scSup1Dist">— pts below</div>
+  </div>
+  <div class="sr-chip sc-sup2">
+    <div class="sc-lbl">🟡 Support 2</div>
+    <div class="sc-val" id="scSup2">—</div>
+    <div class="sc-oi" id="scSup2OI">OI: —</div>
+    <div class="sc-oi" id="scSup2Vol">Vol: —</div>
+    <div class="sc-oi" id="scSup2Chg">OI Chg: —</div>
+    <div class="sc-dist" style="color:var(--teal)" id="scSup2Dist">— pts below</div>
+  </div>
+</div>
+
+<!-- ═══ NEARBY S/R INTRADAY ZONE ═══ -->
+<div class="nsr-wrap">
+  <div class="nsr-title">📍 Nearest Intraday S/R Zones — Closest strikes to Spot <span>(OI-based price walls near current market)</span></div>
+  <div class="nsr-grid">
+    <!-- Resistance side (above spot) -->
+    <div class="nsr-col" id="nsrResCol">
+      <div class="nsr-chip near-res" id="nsrR1">
+        <div class="nc-strike" id="nsrR1Strike">—</div>
+        <div class="nc-dist" id="nsrR1Dist">— pts above · R-NEAR</div>
+        <div class="nc-oi" id="nsrR1OI" style="color:var(--red)">OI: —</div>
+        <div class="nc-vol" id="nsrR1Vol">Vol: —</div>
+        <div class="nc-bar"><div class="nc-bar-fill" id="nsrR1Bar" style="width:0%"></div></div>
+      </div>
+      <div class="nsr-chip far-res" id="nsrR2">
+        <div class="nc-strike" id="nsrR2Strike">—</div>
+        <div class="nc-dist" id="nsrR2Dist">— pts above · R-FAR</div>
+        <div class="nc-oi" id="nsrR2OI" style="color:#ff7043">OI: —</div>
+        <div class="nc-vol" id="nsrR2Vol">Vol: —</div>
+        <div class="nc-bar"><div class="nc-bar-fill" id="nsrR2Bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <!-- Spot center -->
+    <div class="nsr-spot-center">
+      <div class="ns-lbl">SPOT</div>
+      <div class="ns-spot" id="nsrSpot">—</div>
+      <div class="ns-zone" id="nsrZoneLabel" style="color:var(--amber)">—</div>
+    </div>
+    <!-- Support side (below spot) -->
+    <div class="nsr-col" id="nsrSupCol">
+      <div class="nsr-chip near-sup" id="nsrS1">
+        <div class="nc-strike" id="nsrS1Strike">—</div>
+        <div class="nc-dist" id="nsrS1Dist">— pts below · S-NEAR</div>
+        <div class="nc-oi" id="nsrS1OI" style="color:var(--green)">OI: —</div>
+        <div class="nc-vol" id="nsrS1Vol">Vol: —</div>
+        <div class="nc-bar"><div class="nc-bar-fill" id="nsrS1Bar" style="width:0%"></div></div>
+      </div>
+      <div class="nsr-chip far-sup" id="nsrS2">
+        <div class="nc-strike" id="nsrS2Strike">—</div>
+        <div class="nc-dist" id="nsrS2Dist">— pts below · S-FAR</div>
+        <div class="nc-oi" id="nsrS2OI" style="color:var(--teal)">OI: —</div>
+        <div class="nc-vol" id="nsrS2Vol">Vol: —</div>
+        <div class="nc-bar"><div class="nc-bar-fill" id="nsrS2Bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- Zone position bar -->
+  <div class="nsr-zone-bar">
+    <span class="nzb-lbl">Zone Position</span>
+    <div class="nzb-track"><div class="nzb-dot" id="nsrZoneDot" style="left:50%"></div></div>
+    <span class="nzb-val" id="nsrZonePct">—</span>
+    <span style="color:var(--muted2);font-size:10px" id="nsrZoneNote">—</span>
+  </div>
+</div>
+
+<!-- ═══ VOLUME PUT-CALL DIFFERENCE & TREND ═══ -->
+<div class="vol-panel">
+  <div class="vol-card">
+    <div class="vc-lbl">📦 Call Volume</div>
+    <div class="vc-val" id="volCE" style="color:var(--blue2)">—</div>
+    <div class="vc-sub" id="volCETrend">Trend: —</div>
+  </div>
+  <div class="vol-card">
+    <div class="vc-lbl">📦 Put Volume</div>
+    <div class="vc-val" id="volPE" style="color:var(--red)">—</div>
+    <div class="vc-sub" id="volPETrend">Trend: —</div>
+  </div>
+  <div class="vol-card">
+    <div class="vc-lbl">⚖️ Vol Put−Call %</div>
+    <div class="vc-val" id="volDiffPct" style="color:var(--amber)">—</div>
+    <div class="vc-sub" id="volDiffNote">—</div>
+  </div>
+  <div class="vol-card">
+    <div class="vc-lbl">📊 Vol PCR (Put/Call)</div>
+    <div class="vc-val" id="volPCR" style="color:var(--cyan)">—</div>
+    <div class="vc-sub" id="volPCRNote">—</div>
+  </div>
+  <div class="vol-trend-card">
+    <div class="vc-lbl">📈 Volume Trend — Intraday Build-up (last snapshots)</div>
+    <div class="vol-trend-row">
+      <div class="vol-trend-item">
+        <div class="vti-lbl">CE Vol Trend</div>
+        <div class="vti-val" id="volCETrendBig" style="color:var(--blue2)">—</div>
+        <div class="vti-sub" id="volCETrendNote">—</div>
+        <div class="vol-sparkline" id="volCESparkline"></div>
+      </div>
+      <div class="vol-trend-item">
+        <div class="vti-lbl">PE Vol Trend</div>
+        <div class="vti-val" id="volPETrendBig" style="color:var(--red)">—</div>
+        <div class="vti-sub" id="volPETrendNote">—</div>
+        <div class="vol-sparkline" id="volPESparkline"></div>
+      </div>
+      <div class="vol-trend-item">
+        <div class="vti-lbl">Vol Bias Shift</div>
+        <div class="vti-val" id="volBiasBig" style="color:var(--amber)">—</div>
+        <div class="vti-sub" id="volBiasNote">—</div>
+        <div class="vol-sparkline" id="volPCRSparkline"></div>
+      </div>
+      <div class="vol-trend-item">
+        <div class="vti-lbl">Vol Surge Alert</div>
+        <div class="vti-val" id="volSurge" style="color:var(--purple)">—</div>
+        <div class="vti-sub" id="volSurgeNote">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GREEK FEVER ═══ -->
+<div class="gf-wrap">
+  <div class="gf-header">
+    <div class="gf-title">🔥 Greek Fever</div>
+    <div class="gf-badge neutral" id="gfBadge">— NEUTRAL —</div>
+    <span style="font-size:10px;color:var(--muted2);margin-left:auto" id="gfSummary">Aggregate option greek sentiment</span>
+  </div>
+  <div class="gf-grid">
+    <!-- Main Fever Card -->
+    <div class="gf-main-card" id="gfMainCard">
+      <div>
+        <div class="gm-fever" id="gfFeverVal" style="color:var(--amber)">—</div>
+        <div style="font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-top:3px">Fever Signal</div>
+        <div class="gm-sub" id="gfMainNote">Load data to compute Greek Fever</div>
+      </div>
+      <div class="gm-scores">
+        <div class="gf-score-row">
+          <span class="gsr-lbl">DELTA</span>
+          <div class="gsr-bar"><div class="gsr-fill" id="gfDeltaBar" style="width:50%;background:var(--blue2)"></div></div>
+          <span class="gsr-val" id="gfDeltaScore" style="color:var(--blue2)">—</span>
+        </div>
+        <div class="gf-score-row">
+          <span class="gsr-lbl">GAMMA</span>
+          <div class="gsr-bar"><div class="gsr-fill" id="gfGammaBar" style="width:50%;background:var(--cyan)"></div></div>
+          <span class="gsr-val" id="gfGammaScore" style="color:var(--cyan)">—</span>
+        </div>
+        <div class="gf-score-row">
+          <span class="gsr-lbl">THETA</span>
+          <div class="gsr-bar"><div class="gsr-fill" id="gfThetaBar" style="width:50%;background:var(--amber)"></div></div>
+          <span class="gsr-val" id="gfThetaScore" style="color:var(--amber)">—</span>
+        </div>
+        <div class="gf-score-row">
+          <span class="gsr-lbl">VEGA</span>
+          <div class="gsr-bar"><div class="gsr-fill" id="gfVegaBar" style="width:50%;background:var(--purple)"></div></div>
+          <span class="gsr-val" id="gfVegaScore" style="color:var(--purple)">—</span>
+        </div>
+      </div>
+      <!-- SVG gauge -->
+      <svg class="gf-meter" viewBox="0 0 100 100" id="gfGaugeSvg">
+        <defs>
+          <linearGradient id="gfGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#ff1744"/>
+            <stop offset="50%" style="stop-color:#ffab00"/>
+            <stop offset="100%" style="stop-color:#00e676"/>
+          </linearGradient>
+        </defs>
+        <path d="M15 80 A40 40 0 0 1 85 80" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10" stroke-linecap="round"/>
+        <path d="M15 80 A40 40 0 0 1 85 80" fill="none" stroke="url(#gfGrad)" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+        <line id="gfNeedle" x1="50" y1="80" x2="50" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round" transform-origin="50 80" style="transition:transform .8s cubic-bezier(.4,0,.2,1)"/>
+        <circle cx="50" cy="80" r="4" fill="#fff" opacity=".8"/>
+        <text id="gfGaugeText" x="50" y="72" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.5)" font-family="Barlow Condensed">FEVER</text>
+      </svg>
+    </div>
+    <!-- Delta Card -->
+    <div class="gf-card neut" id="gfDeltaCard">
+      <div class="gc-lbl">Δ Delta Bias</div>
+      <div class="gc-greek">
+        <span id="gfCEDelta" style="color:var(--blue2)">CE: —</span>
+        <span id="gfPEDelta" style="color:var(--red)">PE: —</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted2)" id="gfDeltaNote">Net delta direction</div>
+      <div class="gc-bar-wrap">
+        <div class="gc-bar-ce" id="gfDeltaCEBar" style="flex:1"></div>
+        <div class="gc-bar-pe" id="gfDeltaPEBar" style="flex:1"></div>
+      </div>
+    </div>
+    <!-- Gamma Card -->
+    <div class="gf-card neut" id="gfGammaCard">
+      <div class="gc-lbl">Γ Gamma Exposure</div>
+      <div class="gc-greek">
+        <span id="gfCEGamma" style="color:var(--blue2)">CE: —</span>
+        <span id="gfPEGamma" style="color:var(--red)">PE: —</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted2)" id="gfGammaNote">Pin risk / acceleration</div>
+      <div class="gc-bar-wrap">
+        <div class="gc-bar-ce" id="gfGammaCEBar" style="flex:1"></div>
+        <div class="gc-bar-pe" id="gfGammaPEBar" style="flex:1"></div>
+      </div>
+    </div>
+    <!-- Theta Card -->
+    <div class="gf-card neut" id="gfThetaCard">
+      <div class="gc-lbl">Θ Theta Drain</div>
+      <div class="gc-greek">
+        <span id="gfCETheta" style="color:var(--blue2)">CE: —</span>
+        <span id="gfPETheta" style="color:var(--red)">PE: —</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted2)" id="gfThetaNote">Time decay pressure</div>
+      <div class="gc-bar-wrap">
+        <div class="gc-bar-ce" id="gfThetaCEBar" style="flex:1"></div>
+        <div class="gc-bar-pe" id="gfThetaPEBar" style="flex:1"></div>
+      </div>
+    </div>
+    <!-- Vega Card -->
+    <div class="gf-card neut" id="gfVegaCard">
+      <div class="gc-lbl">ν Vega Sensitivity</div>
+      <div class="gc-greek">
+        <span id="gfCEVega" style="color:var(--blue2)">CE: —</span>
+        <span id="gfPEVega" style="color:var(--red)">PE: —</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted2)" id="gfVegaNote">IV expansion risk</div>
+      <div class="gc-bar-wrap">
+        <div class="gc-bar-ce" id="gfVegaCEBar" style="flex:1"></div>
+        <div class="gc-bar-pe" id="gfVegaPEBar" style="flex:1"></div>
+      </div>
+    </div>
+    <!-- ATM Greek Snapshot -->
+    <div class="gf-card neut" id="gfAtmCard" style="grid-column:span 1">
+      <div class="gc-lbl">⚡ ATM Greek Snapshot</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px;font-size:10px">
+        <div><span style="color:var(--muted2)">CE Δ</span> <span id="gfAtmCEDelta" style="font-weight:700;color:var(--blue2)">—</span></div>
+        <div><span style="color:var(--muted2)">PE Δ</span> <span id="gfAtmPEDelta" style="font-weight:700;color:var(--red)">—</span></div>
+        <div><span style="color:var(--muted2)">CE Γ</span> <span id="gfAtmCEGamma" style="font-weight:700;color:var(--cyan)">—</span></div>
+        <div><span style="color:var(--muted2)">PE Γ</span> <span id="gfAtmPEGamma" style="font-weight:700;color:var(--cyan)">—</span></div>
+        <div><span style="color:var(--muted2)">CE Θ</span> <span id="gfAtmCETheta" style="font-weight:700;color:var(--amber)">—</span></div>
+        <div><span style="color:var(--muted2)">PE Θ</span> <span id="gfAtmPETheta" style="font-weight:700;color:var(--amber)">—</span></div>
+        <div><span style="color:var(--muted2)">CE ν</span> <span id="gfAtmCEVega" style="font-weight:700;color:var(--purple)">—</span></div>
+        <div><span style="color:var(--muted2)">PE ν</span> <span id="gfAtmPEVega" style="font-weight:700;color:var(--purple)">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TREND REVERSAL STRIP ═══ -->
+<div class="rev-strip">
+  <div class="rev-title">⚡ REVERSAL RADAR</div>
+  <div class="rev-chip">
+    <div class="rc-lbl">Reversal Risk</div>
+    <div class="rc-val" id="revRisk">—</div>
+    <div class="rc-sub" id="revRiskNote">—</div>
+  </div>
+  <div class="rev-chip">
+    <div class="rc-lbl">OI Shift Signal</div>
+    <div class="rc-val" id="revOI">—</div>
+    <div class="rc-sub" id="revOINote">—</div>
+  </div>
+  <div class="rev-chip">
+    <div class="rc-lbl">PCR Trend</div>
+    <div class="rc-val" id="revPCR">—</div>
+    <div class="rc-sub" id="revPCRNote">—</div>
+  </div>
+  <div class="rev-chip">
+    <div class="rc-lbl">Nearest Wall</div>
+    <div class="rc-val" id="revWall">—</div>
+    <div class="rc-sub" id="revWallNote">—</div>
+  </div>
+  <div class="rev-chip">
+    <div class="rc-lbl">Prediction</div>
+    <div class="rc-val" id="revPred">—</div>
+    <div class="rc-sub" id="revPredNote">—</div>
+  </div>
+</div>
+
+<!-- ═══ OPTION CHAIN TABLE ═══ -->
+<div class="chain-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-family:var(--head);font-size:14px;font-weight:800;letter-spacing:1px;color:var(--muted2);text-transform:uppercase">Option Chain — Full <span id="chainCount" style="color:var(--blue2)"></span></div>
+    <div style="font-size:10px;color:var(--muted2)">🔴 R = Resistance &nbsp;|&nbsp; 🟢 S = Support &nbsp;|&nbsp; OI% = % of max OI</div>
+  </div>
+  <div class="chain-scroll">
+    <table class="ct" id="chainTable">
+      <thead><tr>
+        <th class="th-ce" style="width:70px">CE OI</th>
+        <th class="th-ce" style="width:46px">OI%</th>
+        <th class="th-ce" style="width:50px">OI Δ%</th>
+        <th class="th-ce" style="width:56px">Vol</th>
+        <th class="th-ce" style="width:40px">IV%</th>
+        <th class="th-ce" style="width:60px">LTP</th>
+        <th class="th-sk" style="width:100px">STRIKE</th>
+        <th class="th-pe" style="width:60px">LTP</th>
+        <th class="th-pe" style="width:40px">IV%</th>
+        <th class="th-pe" style="width:56px">Vol</th>
+        <th class="th-pe" style="width:50px">OI Δ%</th>
+        <th class="th-pe" style="width:46px">OI%</th>
+        <th class="th-pe" style="width:70px">PE OI</th>
+      </tr></thead>
+      <tbody id="chainBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ OI % HISTORY TABLE (time-wise) ═══ -->
+<div class="oih-wrap">
+  <div class="oih-title">📊 OI Snapshot History — Time-Wise with PCR Signal & S/R Details</div>
+  <div class="oih-scroll">
+    <table class="oiht">
+      <thead><tr>
+        <th>TIME</th>
+        <th>CALL OI</th>
+        <th>PUT OI</th>
+        <th>PUT−CALL OI %</th>
+        <th>PCR</th>
+        <th>VOL DIFF%</th>
+        <th>VOL PCR</th>
+        <th>PCR SIGNAL</th>
+        <th>CE OI Δ</th>
+        <th>PE OI Δ</th>
+        <th style="border-left:1px solid var(--border2)">R1 STRIKE</th>
+        <th>R1 OI</th>
+        <th>R1 VOL</th>
+        <th>R1 OI CHG%</th>
+        <th style="border-left:1px solid var(--border2)">S1 STRIKE</th>
+        <th>S1 OI</th>
+        <th>S1 VOL</th>
+        <th>S1 OI CHG%</th>
+        <th style="border-left:1px solid var(--border2)">BIAS</th>
+      </tr></thead>
+      <tbody id="oiHistBody">
+        <tr><td colspan="19" style="color:var(--muted2);padding:20px;text-align:center">Load data to start tracking OI history…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- .page -->
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="sdot ok" id="sdot"></div>
+  <span id="statusMsg">Demo mode — load data to begin</span>
+  <span style="margin-left:auto;color:var(--muted)">NSE NIFTY 50 · OI INTELLIGENCE · <span id="stTime"></span></span>
+</div>
+
+<!-- ════ SCRIPTS ════ -->
+<script>
+// ════════════════════════════════════════════
+//  GLOBALS
+// ════════════════════════════════════════════
+let token='', optRows=[], spot=24756, vix=14.5;
+let autoOn=false, autoTmr=null, isLive=false;
+let selectedExpiry='', expiryDaysMap={};
+let oiHistory=[];   // time-series for OI history table
+let lastCeOI=0, lastPeOI=0;
+let volHistory=[];  // volume snapshots for trend
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const fmtN=(n,d=2)=>n!=null?(+n).toFixed(d):'—';
+const fmtOI=n=>{n=n||0;if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';if(n>=1e5)return(n/1e5).toFixed(1)+'L';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(Math.round(n))};
+const fmtChg=n=>{if(n==null)return{t:'—',c:'neu'};return{t:(n>0?'+':'')+n.toFixed(1)+'%',c:n>1?'up':n<-1?'dn':'neu'}};
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+// Black-Scholes
+function normCDF(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;x=Math.abs(x)/Math.SQRT2;const t=1/(1+p*x);const y=1-(((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t)*Math.exp(-x*x);return 0.5*(1+sign*y)}
+function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI)}
+function bsGreeks(S,K,T,r,sigma,type){
+  if(T<=0||sigma<=0)return{delta:0,gamma:0,theta:0,vega:0,rho:0,price:0};
+  const sqrtT=Math.sqrt(T),d1=(Math.log(S/K)+(r+0.5*sigma*sigma)*T)/(sigma*sqrtT),d2=d1-sigma*sqrtT;
+  const nd1=normCDF(d1),nd2=normCDF(d2),nd1n=normCDF(-d1),nd2n=normCDF(-d2),pdf1=normPDF(d1),ert=Math.exp(-r*T);
+  let price,delta,theta,rho;
+  if(type==='CE'){price=S*nd1-K*ert*nd2;delta=nd1;theta=(-S*pdf1*sigma/(2*sqrtT)-r*K*ert*nd2)/365;rho=K*T*ert*nd2/100;}
+  else{price=K*ert*nd2n-S*nd1n;delta=nd1-1;theta=(-S*pdf1*sigma/(2*sqrtT)+r*K*ert*nd2n)/365;rho=-K*T*ert*nd2n/100;}
+  const gamma=pdf1/(S*sigma*sqrtT),vega=S*pdf1*sqrtT/100;
+  return{price:Math.max(0,price),delta,gamma,theta,vega,rho};
+}
+
+// ════════════════════════════════════════════
+//  DEMO GENERATOR
+// ════════════════════════════════════════════
+function genDemo(S){
+  const rows=[];const atm=Math.round(S/50)*50;const T=14/365,r=0.065;
+  for(let st=atm-1500;st<=atm+1500;st+=50){
+    const dist=Math.abs(st-S);
+    const sig=0.135+dist/S*0.6+(Math.random()-0.5)*0.01;
+    const ceG=bsGreeks(S,st,T,r,sig,'CE');const peG=bsGreeks(S,st,T,r,sig+(Math.random()-0.4)*0.015,'PE');
+    const ceOI=Math.round(800000*Math.exp(-dist/700)+Math.random()*150000);
+    const peOI=Math.round(750000*Math.exp(-dist/680)+Math.random()*140000);
+    rows.push({strike_price:st,calloptions:{marketdata:{oi:ceOI,oi_day_change_percentage:(Math.random()-.4)*25,volume:Math.round(ceOI*.12),iv:parseFloat((sig*100).toFixed(2)),ltp:parseFloat(ceG.price.toFixed(2)),delta:parseFloat(ceG.delta.toFixed(4)),gamma:parseFloat(ceG.gamma.toFixed(6)),theta:parseFloat(ceG.theta.toFixed(4)),vega:parseFloat(ceG.vega.toFixed(4))}},putoptions:{marketdata:{oi:peOI,oi_day_change_percentage:(Math.random()-.4)*25,volume:Math.round(peOI*.11),iv:parseFloat((sig*100+1+Math.random()).toFixed(2)),ltp:parseFloat(peG.price.toFixed(2)),delta:parseFloat(peG.delta.toFixed(4)),gamma:parseFloat(peG.gamma.toFixed(6)),theta:parseFloat(peG.theta.toFixed(4)),vega:parseFloat(peG.vega.toFixed(4))}}});
+  }
+  return rows;
+}
+
+// ════════════════════════════════════════════
+//  API (Upstox v2)
+// ════════════════════════════════════════════
+async function apiGet(ep,params={}){
+  const url=new URL(`https://api.upstox.com/v2/${ep}`);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const r=await fetch(url.toString(),{method:'GET',headers:{'Authorization':`Bearer ${token}`,'Accept':'application/json'}});
+  if(!r.ok){let e=`HTTP ${r.status}`;try{const j=await r.json();e=j.errors?.[0]?.message||j.message||e;}catch{}throw new Error(e);}
+  return r.json();
+}
+
+async function connectLive(){
+  token=$('tkIn').value.trim();
+  if(!token){loadDemo();return;}
+  setStatus('load','Connecting to Upstox…');
+  $('connectBtn').textContent='⟳ Connecting…';
+  try{
+    const pd=await apiGet('user/profile');
+    const p=pd.data;
+    $('acctBar').classList.add('show');
+    $('acctAv').textContent=(p.user_name||'U').charAt(0).toUpperCase();
+    $('acctName').textContent=p.user_name||'Account Holder';
+    $('acctMeta').textContent=`${p.user_id||p.email||''} · ${new Date().toLocaleString('en-IN')}`;
+    $('liveLabel').textContent='● LIVE';
+    await loadExpiries();
+    isLive=true;
+    $('connectBtn').textContent='✓ CONNECTED';
+    $('connectBtn').style.background='var(--green)';
+    await doFetch();
+  }catch(e){
+    isLive=false;
+    $('connectBtn').textContent='⚡ CONNECT';
+    setStatus('err','Connection failed: '+e.message);
+  }
+}
+
+async function loadExpiries(){
+  const d=await apiGet('option/contract',{instrument_key:'NSE_INDEX|Nifty 50'});
+  const raw=d.data||[];const today=new Date();today.setHours(0,0,0,0);
+  const map={};
+  raw.forEach(x=>{if(x.expiry){const dd=new Date(x.expiry);map[x.expiry]=Math.max(1,Math.round((dd-today)/86400000));}});
+  expiryDaysMap=map;
+  const exps=Object.keys(map).sort().slice(0,12);
+  const sel=$('expSel');sel.innerHTML='';
+  exps.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=`${e} (${map[e]}d)`;sel.appendChild(o);});
+  selectedExpiry=exps[0]||'';
+}
+
+async function doFetch(){
+  if(!isLive){loadDemo();return;}
+  selectedExpiry=$('expSel').value||selectedExpiry;
+  setStatus('load','Fetching live data…');
+  try{await liveFetch();}catch(e){setStatus('err','Error: '+e.message);}
+}
+
+async function loadDemo(){
+  isLive=false;$('liveLabel').textContent='DEMO';
+  await delay(150);
+  const chg=(Math.random()-.4)*180;
+  spot=24756+chg;
+  vix=12+Math.random()*6;
+  optRows=genDemo(spot);
+  updateHeader(spot,chg);
+  renderAll();
+  setStatus('ok','Demo data loaded — '+new Date().toLocaleTimeString());
+}
+
+async function liveFetch(){
+  const ltpD=await apiGet('market-quote/ltp',{instrument_key:'NSE_INDEX|Nifty 50'});
+  const key=Object.keys(ltpD.data||{})[0];
+  spot=ltpD.data?.[key]?.last_price||ltpD.data?.[key]?.ltp||spot;
+  if(!selectedExpiry)await loadExpiries();
+  const expiry=$('expSel').value||selectedExpiry;
+  const chainD=await apiGet('option/chain',{instrument_key:'NSE_INDEX|Nifty 50',expiry_date:expiry});
+  const raw=chainD.data||[];
+  optRows=raw.sort((a,b)=>a.strike_price-b.strike_price);
+  const today=new Date();today.setHours(0,0,0,0);
+  const daysLeft=Math.max(1,Math.round((new Date(expiry)-today)/86400000));
+  const T=daysLeft/365,rf=0.065;
+  optRows.forEach(row=>{
+    const ce=row.call_options||row.calloptions||{};
+    const pe=row.put_options||row.putoptions||{};
+    if(!row.calloptions)row.calloptions=ce;if(!row.putoptions)row.putoptions=pe;
+    const cemd=ce.market_data||ce.marketdata||{};const pemd=pe.market_data||pe.marketdata||{};
+    if(!ce.marketdata)ce.marketdata=cemd;if(!pe.marketdata)pe.marketdata=pemd;
+    cemd.ltp=cemd.ltp||cemd.last_price||0;cemd.oi=cemd.oi||cemd.open_interest||0;cemd.volume=cemd.volume||cemd.total_volume||0;
+    pemd.ltp=pemd.ltp||pemd.last_price||0;pemd.oi=pemd.oi||pemd.open_interest||0;pemd.volume=pemd.volume||pemd.total_volume||0;
+    const ceg=ce.option_greeks||ce.greeks||{};const peg=pe.option_greeks||pe.greeks||{};
+    if(ceg.delta!=null){cemd.delta=ceg.delta;cemd.gamma=ceg.gamma;cemd.theta=ceg.theta;cemd.vega=ceg.vega;cemd.iv=cemd.iv||(ceg.iv||0)*100;}
+    else if(cemd.ltp>0){const iv=Math.max(0.01,(cemd.iv||15)/100);const g=bsGreeks(spot,row.strike_price,T,rf,iv,'CE');cemd.delta=g.delta;cemd.gamma=g.gamma;cemd.theta=g.theta;cemd.vega=g.vega;}
+    if(peg.delta!=null){pemd.delta=peg.delta;pemd.gamma=peg.gamma;pemd.theta=peg.theta;pemd.vega=peg.vega;pemd.iv=pemd.iv||(peg.iv||0)*100;}
+    else if(pemd.ltp>0){const iv=Math.max(0.01,(pemd.iv||15)/100);const g=bsGreeks(spot,row.strike_price,T,rf,iv,'PE');pemd.delta=g.delta;pemd.gamma=g.gamma;pemd.theta=g.theta;pemd.vega=g.vega;}
+  });
+  updateHeader(spot,0);
+  renderAll();
+  setStatus('ok',`Live · ${expiry} · ${new Date().toLocaleTimeString()}`);
+}
+
+function updateHeader(S,chg){
+  $('spotVal').textContent=S.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pct=(chg/S*100).toFixed(2);
+  $('spotChg').textContent=(chg>=0?'▲ +':'▼ ')+Math.abs(chg).toFixed(2)+' ('+(chg>=0?'+':'')+pct+'%)';
+  $('spotChg').className='spot-chg '+(chg>=0?'up':'dn');
+}
+
+// ════════════════════════════════════════════
+//  CORE COMPUTATIONS
+// ════════════════════════════════════════════
+function findATM(){
+  if(!optRows.length)return Math.round(spot/50)*50;
+  return optRows.reduce((b,r)=>Math.abs(r.strike_price-spot)<Math.abs(b-spot)?r.strike_price:b,optRows[0].strike_price);
+}
+
+function computeOI(){
+  let ce=0,pe=0,ceVol=0,peVol=0;
+  optRows.forEach(r=>{
+    ce+=r.calloptions?.marketdata?.oi||0;
+    pe+=r.putoptions?.marketdata?.oi||0;
+    ceVol+=r.calloptions?.marketdata?.volume||0;
+    peVol+=r.putoptions?.marketdata?.volume||0;
+  });
+  const total=ce+pe||1;
+  const diff=pe-ce;
+  const diffPct=total?(diff/total*100):0;
+  return{ce,pe,total,ceVol,peVol,diff,diffPct,cePct:(ce/total*100),pePct:(pe/total*100),pcr:ce?pe/ce:0};
+}
+
+function computeSR(){
+  const atm=findATM();
+  const above=optRows.filter(r=>r.strike_price>atm);
+  const below=optRows.filter(r=>r.strike_price<atm);
+  const topCE=[...above].sort((a,b)=>(b.calloptions?.marketdata?.oi||0)-(a.calloptions?.marketdata?.oi||0));
+  const topPE=[...below].sort((a,b)=>(b.putoptions?.marketdata?.oi||0)-(a.putoptions?.marketdata?.oi||0));
+  const r1=topCE[0],r2=topCE[1],s1=topPE[0],s2=topPE[1];
+  return{
+    atm,
+    res1:r1?.strike_price||atm+500,
+    res1OI:r1?.calloptions?.marketdata?.oi||0,
+    res1Vol:r1?.calloptions?.marketdata?.volume||0,
+    res1Chg:r1?.calloptions?.marketdata?.oi_day_change_percentage||0,
+    res2:r2?.strike_price||atm+1000,
+    res2OI:r2?.calloptions?.marketdata?.oi||0,
+    res2Vol:r2?.calloptions?.marketdata?.volume||0,
+    res2Chg:r2?.calloptions?.marketdata?.oi_day_change_percentage||0,
+    sup1:s1?.strike_price||atm-500,
+    sup1OI:s1?.putoptions?.marketdata?.oi||0,
+    sup1Vol:s1?.putoptions?.marketdata?.volume||0,
+    sup1Chg:s1?.putoptions?.marketdata?.oi_day_change_percentage||0,
+    sup2:s2?.strike_price||atm-1000,
+    sup2OI:s2?.putoptions?.marketdata?.oi||0,
+    sup2Vol:s2?.putoptions?.marketdata?.volume||0,
+    sup2Chg:s2?.putoptions?.marketdata?.oi_day_change_percentage||0,
+  };
+}
+
+// ════════════════════════════════════════════
+//  RENDER INTEL STRIP
+// ════════════════════════════════════════════
+function renderIntel(oi,sr){
+  $('totCeOI').textContent=fmtOI(oi.ce);
+  $('totPeOI').textContent=fmtOI(oi.pe);
+  $('totCeVol').textContent='Vol: '+fmtOI(oi.ceVol);
+  $('totPeVol').textContent='Vol: '+fmtOI(oi.peVol);
+  // Put-Call OI difference in %
+  const diffPct=oi.diffPct;
+  $('oiDiffPct').textContent=(diffPct>=0?'+':'')+diffPct.toFixed(2)+'%';
+  $('oiDiffPct').style.color=diffPct>0?'var(--green)':'var(--red)';
+  $('oiDiffNote').textContent=diffPct>5?'Strong PE excess → Bullish':diffPct>0?'PE heavier → Mild Bullish':diffPct>-5?'CE heavier → Mild Bearish':'Strong CE excess → Bearish';
+  $('pcrBig').textContent=oi.pcr.toFixed(3);
+  $('pcrHdr').textContent=oi.pcr.toFixed(3);
+  // ATM
+  $('atmBig').textContent=sr.atm;
+  const atmRow=optRows.find(r=>r.strike_price===sr.atm)||{};
+  const atmIV=((atmRow.calloptions?.marketdata?.iv||0)+(atmRow.putoptions?.marketdata?.iv||0))/2;
+  $('atmNote').textContent='ATM IV: '+atmIV.toFixed(1)+'%';
+  $('atmIVHdr').textContent=atmIV.toFixed(1)+'%';
+  // VIX
+  $('vixBig').textContent=vix.toFixed(2);
+  $('vixVal').textContent=vix.toFixed(2);
+  $('vixNote').textContent=vix<13?'Low — Calm':vix<18?'Normal':vix<25?'Elevated':'High Fear';
+  // VIX range
+  const dailyPct=vix/Math.sqrt(252);
+  const dailyMove=spot*dailyPct/100;
+  $('vixMove').textContent='±'+dailyMove.toFixed(0);
+  $('vixLow').textContent=(spot-dailyMove).toFixed(0);
+  $('vixSpot').textContent=spot.toFixed(0);
+  $('vixHigh').textContent=(spot+dailyMove).toFixed(0);
+  $('vixFormula').textContent=`VIX ${vix.toFixed(2)} ÷ √252 = ${dailyPct.toFixed(2)}% daily move → ±${dailyMove.toFixed(0)} pts`;
+  // PCR gauge
+  const pcr=oi.pcr;
+  let pcrSig,pcrColor,pcrDetail,needlePct;
+  if(pcr>=1.5){pcrSig='🚀 STRONGLY BULLISH';pcrColor='var(--green)';pcrDetail='Extreme put writing — strong bullish signal';needlePct=92;}
+  else if(pcr>=1.2){pcrSig='📈 BULLISH';pcrColor='var(--green)';pcrDetail='Put OI dominates — buyers expect upside';needlePct=78;}
+  else if(pcr>=1.0){pcrSig='🔼 MILD BULLISH';pcrColor='var(--teal)';pcrDetail='Slight put bias — cautiously bullish';needlePct=65;}
+  else if(pcr>=0.8){pcrSig='➡️ NEUTRAL';pcrColor='var(--amber)';pcrDetail='Balanced OI — no clear directional bias';needlePct=50;}
+  else if(pcr>=0.7){pcrSig='🔽 MILD BEARISH';pcrColor='var(--amber)';pcrDetail='Call OI growing — slight bearish tilt';needlePct=38;}
+  else if(pcr>=0.5){pcrSig='📉 BEARISH';pcrColor='var(--red)';pcrDetail='Call OI dominant — downside protection buying';needlePct=24;}
+  else{pcrSig='💥 STRONGLY BEARISH';pcrColor='var(--red)';pcrDetail='Extreme call writing — strong bearish sentiment';needlePct=8;}
+  $('pcrSig').textContent=pcrSig;$('pcrSig').style.color=pcrColor;
+  $('pcrSigDetail').textContent=pcrDetail;
+  $('pcrNote').textContent=pcrSig.replace(/[^\w\s→↑↓]/g,'').trim();
+  $('pcrNeedle').style.left=needlePct+'%';
+}
+
+// ════════════════════════════════════════════
+//  RENDER S/R CHIPS
+// ════════════════════════════════════════════
+function renderSR(sr){
+  const chgColor=v=>v>0?'var(--green)':v<0?'var(--red)':'var(--muted2)';
+  const chgStr=v=>v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—';
+
+  $('scRes2').textContent=sr.res2;
+  $('scRes2OI').textContent='OI: '+fmtOI(sr.res2OI);
+  $('scRes2Vol').textContent='Vol: '+fmtOI(sr.res2Vol);
+  $('scRes2Chg').style.color=chgColor(sr.res2Chg);
+  $('scRes2Chg').textContent='OI Chg: '+chgStr(sr.res2Chg);
+  $('scRes2Dist').textContent='+'+(sr.res2-spot).toFixed(0)+' pts above';
+
+  $('scRes1').textContent=sr.res1;
+  $('scRes1OI').textContent='OI: '+fmtOI(sr.res1OI);
+  $('scRes1Vol').textContent='Vol: '+fmtOI(sr.res1Vol);
+  $('scRes1Chg').style.color=chgColor(sr.res1Chg);
+  $('scRes1Chg').textContent='OI Chg: '+chgStr(sr.res1Chg);
+  $('scRes1Dist').textContent='+'+(sr.res1-spot).toFixed(0)+' pts above';
+
+  $('scAtm').textContent=sr.atm;
+  $('scAtmNote').textContent='Spot: '+spot.toFixed(0);
+
+  $('scSup1').textContent=sr.sup1;
+  $('scSup1OI').textContent='OI: '+fmtOI(sr.sup1OI);
+  $('scSup1Vol').textContent='Vol: '+fmtOI(sr.sup1Vol);
+  $('scSup1Chg').style.color=chgColor(sr.sup1Chg);
+  $('scSup1Chg').textContent='OI Chg: '+chgStr(sr.sup1Chg);
+  $('scSup1Dist').textContent='-'+(spot-sr.sup1).toFixed(0)+' pts below';
+
+  $('scSup2').textContent=sr.sup2;
+  $('scSup2OI').textContent='OI: '+fmtOI(sr.sup2OI);
+  $('scSup2Vol').textContent='Vol: '+fmtOI(sr.sup2Vol);
+  $('scSup2Chg').style.color=chgColor(sr.sup2Chg);
+  $('scSup2Chg').textContent='OI Chg: '+chgStr(sr.sup2Chg);
+  $('scSup2Dist').textContent='-'+(spot-sr.sup2).toFixed(0)+' pts below';
+
+  const spread=sr.res1-sr.sup1;const pos=(spot-sr.sup1)/spread*100;
+  $('scTrend').textContent=pos>65?'📈 Near Resistance':pos<35?'📉 Near Support':'⚖️ Mid Range';
+}
+
+// ════════════════════════════════════════════
+//  RENDER NEARBY INTRADAY S/R ZONES
+// ════════════════════════════════════════════
+function renderNearSR(){
+  if(!optRows.length)return;
+  const above=optRows.filter(r=>r.strike_price>spot).sort((a,b)=>a.strike_price-b.strike_price);
+  const below=optRows.filter(r=>r.strike_price<=spot).sort((a,b)=>b.strike_price-a.strike_price);
+  const r1=above[0],r2=above[1],s1=below[0],s2=below[1];
+  const maxOI=Math.max(
+    r1?.calloptions?.marketdata?.oi||0,r2?.calloptions?.marketdata?.oi||0,
+    s1?.putoptions?.marketdata?.oi||0,s2?.putoptions?.marketdata?.oi||0,1
+  );
+
+  function fillChip(strikeEl,distEl,oiEl,volEl,barEl,row,type,label){
+    const md=type==='R'?row?.calloptions?.marketdata:row?.putoptions?.marketdata;
+    const strike=row?.strike_price||0;
+    const dist=Math.abs(strike-spot).toFixed(0);
+    const oi=md?.oi||0;const vol=md?.volume||0;
+    const barPct=Math.min(100,(oi/maxOI*100)).toFixed(1);
+    strikeEl.textContent=strike||'—';
+    distEl.textContent=`${dist} pts ${type==='R'?'above':'below'} · ${label}`;
+    oiEl.textContent=`OI: ${fmtOI(oi)}`;
+    volEl.textContent=`Vol: ${fmtOI(vol)}`;
+    barEl.style.width=barPct+'%';
+  }
+  fillChip($('nsrR1Strike'),$('nsrR1Dist'),$('nsrR1OI'),$('nsrR1Vol'),$('nsrR1Bar'),r1,'R','R-NEAR');
+  fillChip($('nsrR2Strike'),$('nsrR2Dist'),$('nsrR2OI'),$('nsrR2Vol'),$('nsrR2Bar'),r2,'R','R-FAR');
+  fillChip($('nsrS1Strike'),$('nsrS1Dist'),$('nsrS1OI'),$('nsrS1Vol'),$('nsrS1Bar'),s1,'S','S-NEAR');
+  fillChip($('nsrS2Strike'),$('nsrS2Dist'),$('nsrS2OI'),$('nsrS2Vol'),$('nsrS2Bar'),s2,'S','S-FAR');
+
+  $('nsrSpot').textContent=spot.toFixed(0);
+  const distR=r1?(r1.strike_price-spot):500;
+  const distS=s1?(spot-s1.strike_price):500;
+  const rangeSpan=distR+distS||1;
+  const posPct=(distS/rangeSpan*100);
+  $('nsrZoneDot').style.left=posPct.toFixed(1)+'%';
+  $('nsrZonePct').textContent=posPct.toFixed(0)+'% from S1';
+  let zoneLabel,zoneColor;
+  if(posPct>75){zoneLabel='⚠️ Near Resistance';zoneColor='var(--red)';}
+  else if(posPct<25){zoneLabel='⚠️ Near Support';zoneColor='var(--green)';}
+  else if(posPct>55){zoneLabel='🔼 Upper Half';zoneColor='var(--amber)';}
+  else if(posPct<45){zoneLabel='🔽 Lower Half';zoneColor='var(--teal)';}
+  else{zoneLabel='⚖️ Mid Zone';zoneColor='var(--cyan)';}
+  $('nsrZoneLabel').textContent=zoneLabel;$('nsrZoneLabel').style.color=zoneColor;
+  $('nsrZoneNote').textContent=`R-NEAR in ${distR.toFixed(0)}pts · S-NEAR in ${distS.toFixed(0)}pts`;
+}
+
+// ════════════════════════════════════════════
+//  RENDER VOLUME PUT-CALL DIFFERENCE & TREND
+// ════════════════════════════════════════════
+function renderVolume(oi){
+  const ceVol=oi.ceVol,peVol=oi.peVol;
+  const volTotal=ceVol+peVol||1;
+  const volDiff=peVol-ceVol;
+  const volDiffPct=(volDiff/volTotal*100);
+  const volPCR=ceVol?peVol/ceVol:0;
+
+  $('volCE').textContent=fmtOI(ceVol);
+  $('volPE').textContent=fmtOI(peVol);
+  $('volDiffPct').textContent=(volDiffPct>=0?'+':'')+volDiffPct.toFixed(2)+'%';
+  $('volDiffPct').style.color=volDiffPct>0?'var(--green)':'var(--red)';
+  $('volDiffNote').textContent=volDiffPct>8?'Strong Put Vol excess → Bullish':volDiffPct>0?'Put Vol heavier → Mild Bullish':volDiffPct>-8?'Call Vol heavier → Mild Bearish':'Strong Call Vol → Bearish';
+  $('volPCR').textContent=volPCR.toFixed(3);
+  const vpcrNote=volPCR>=1.5?'🚀 Strongly Bullish':volPCR>=1.2?'📈 Bullish':volPCR>=0.9?'➡️ Neutral':volPCR>=0.7?'📉 Mild Bear':'💥 Bearish';
+  $('volPCRNote').textContent=vpcrNote;
+
+  // Record to history
+  volHistory.unshift({ceVol,peVol,volDiffPct,volPCR,t:new Date().toLocaleTimeString()});
+  if(volHistory.length>12)volHistory.pop();
+
+  // Trend calculation
+  function calcTrend(arr){
+    if(arr.length<2)return{sig:'→ COLLECTING',note:'Need more snapshots',dir:0};
+    const recent=arr.slice(0,Math.min(4,arr.length));
+    let up=0,dn=0;
+    for(let i=0;i<recent.length-1;i++){
+      if(recent[i]>recent[i+1])up++;else if(recent[i]<recent[i+1])dn++;
+    }
+    if(up>=2&&up>dn)return{sig:'↑ RISING',note:'Volume building up',dir:1};
+    if(dn>=2&&dn>up)return{sig:'↓ FALLING',note:'Volume tapering off',dir:-1};
+    return{sig:'→ FLAT',note:'Volume steady',dir:0};
+  }
+  const ceVolArr=volHistory.map(v=>v.ceVol);
+  const peVolArr=volHistory.map(v=>v.peVol);
+  const pcrArr=volHistory.map(v=>v.volPCR);
+  const ceTrend=calcTrend(ceVolArr);const peTrend=calcTrend(peVolArr);
+  const pcrTrend=calcTrend(pcrArr);
+
+  const ceColor=ceTrend.dir>0?'var(--green)':ceTrend.dir<0?'var(--red)':'var(--muted2)';
+  const peColor=peTrend.dir>0?'var(--green)':peTrend.dir<0?'var(--red)':'var(--muted2)';
+  $('volCETrend').textContent='Trend: '+ceTrend.sig;$('volCETrend').style.color=ceColor;
+  $('volPETrend').textContent='Trend: '+peTrend.sig;$('volPETrend').style.color=peColor;
+  $('volCETrendBig').textContent=ceTrend.sig;$('volCETrendBig').style.color=ceColor;
+  $('volCETrendNote').textContent=ceTrend.note;
+  $('volPETrendBig').textContent=peTrend.sig;$('volPETrendBig').style.color=peColor;
+  $('volPETrendNote').textContent=peTrend.note;
+
+  // Bias shift
+  let biasStr,biasColor,biasNote;
+  if(peTrend.dir>0&&ceTrend.dir<=0){biasStr='⬆ PUT SURGE';biasColor='var(--green)';biasNote='Put vol rising, call flat/down → Bullish';}
+  else if(ceTrend.dir>0&&peTrend.dir<=0){biasStr='⬇ CALL SURGE';biasColor='var(--red)';biasNote='Call vol rising, put flat/down → Bearish';}
+  else if(peTrend.dir>0&&ceTrend.dir>0){biasStr='↕ BOTH RISING';biasColor='var(--amber)';biasNote='Both rising — high activity, unclear bias';}
+  else if(peTrend.dir<0&&ceTrend.dir<0){biasStr='↘ BOTH FALLING';biasColor='var(--muted2)';biasNote='Activity drying up — consolidation likely';}
+  else{biasStr='→ STABLE';biasColor='var(--cyan)';biasNote='No clear volume shift';}
+  $('volBiasBig').textContent=biasStr;$('volBiasBig').style.color=biasColor;$('volBiasNote').textContent=biasNote;
+
+  // Surge detection (latest vs avg)
+  if(volHistory.length>=4){
+    const avgCE=ceVolArr.slice(1).reduce((a,b)=>a+b,0)/(ceVolArr.length-1);
+    const avgPE=peVolArr.slice(1).reduce((a,b)=>a+b,0)/(peVolArr.length-1);
+    const ceSurge=avgCE>0?ceVol/avgCE:1;const peSurge=avgPE>0?peVol/avgPE:1;
+    if(ceSurge>1.5&&ceSurge>peSurge){$('volSurge').textContent='🔴 CE SPIKE x'+ceSurge.toFixed(1);$('volSurge').style.color='var(--red)';$('volSurgeNote').textContent='Call vol '+((ceSurge-1)*100).toFixed(0)+'% above avg';}
+    else if(peSurge>1.5&&peSurge>ceSurge){$('volSurge').textContent='🟢 PE SPIKE x'+peSurge.toFixed(1);$('volSurge').style.color='var(--green)';$('volSurgeNote').textContent='Put vol '+((peSurge-1)*100).toFixed(0)+'% above avg';}
+    else{$('volSurge').textContent='✅ NORMAL';$('volSurge').style.color='var(--muted2)';$('volSurgeNote').textContent='No abnormal volume surge';}
+  }else{$('volSurge').textContent='— COLLECTING';$('volSurge').style.color='var(--muted2)';$('volSurgeNote').textContent='Need 4+ snapshots';}
+
+  // Sparklines
+  function drawSparkline(elId,arr,cls){
+    const el=$(elId);if(!el)return;el.innerHTML='';
+    const max=Math.max(...arr)||1;
+    arr.slice(0,8).reverse().forEach(v=>{
+      const bar=document.createElement('div');
+      bar.className='vs-bar '+cls;
+      bar.style.height=Math.max(2,(v/max*24)).toFixed(0)+'px';
+      el.appendChild(bar);
+    });
+  }
+  drawSparkline('volCESparkline',ceVolArr,'ce');
+  drawSparkline('volPESparkline',peVolArr,'pe');
+  drawSparkline('volPCRSparkline',pcrArr,'ce');
+}
+
+// ════════════════════════════════════════════
+//  RENDER REVERSAL RADAR
+// ════════════════════════════════════════════
+function renderReversal(oi,sr){
+  const pcr=oi.pcr;
+  const distRes=sr.res1-spot;const distSup=spot-sr.sup1;
+  const nearerDist=Math.min(distRes,distSup);
+  const nearerType=distRes<distSup?'Resistance':'Support';
+
+  // ATM OI ratio
+  const atmBand=optRows.filter(r=>Math.abs(r.strike_price-sr.atm)<=150);
+  const atmCE=atmBand.reduce((s,r)=>s+(r.calloptions?.marketdata?.oi||0),0);
+  const atmPE=atmBand.reduce((s,r)=>s+(r.putoptions?.marketdata?.oi||0),0);
+  const atmPCR=atmCE?atmPE/atmCE:1;
+
+  // OI Shift
+  let oiSig,oiNote;
+  if(atmPCR>1.5){oiSig='⬆ PUT BUILD';oiNote='Heavy PE near ATM → Strong support';}
+  else if(atmPCR>1.1){oiSig='⬆ BULLISH TILT';oiNote='PE>CE at ATM → Mild upside bias';}
+  else if(atmPCR<0.6){oiSig='⬇ CALL BUILD';oiNote='Heavy CE near ATM → Strong resistance';}
+  else if(atmPCR<0.9){oiSig='⬇ BEARISH TILT';oiNote='CE>PE at ATM → Mild downside bias';}
+  else{oiSig='↔ BALANCED';oiNote='Equal CE/PE near ATM → Range bound';}
+
+  // PCR trend from history
+  let pcrTrend,pcrTrendNote;
+  if(oiHistory.length>=3){
+    const prev=oiHistory[oiHistory.length-2]?.pcr||pcr;const pp=oiHistory[oiHistory.length-3]?.pcr||prev;
+    if(pcr>prev&&prev>pp){pcrTrend='↑ RISING';pcrTrendNote='PCR building → Bullish momentum';}
+    else if(pcr<prev&&prev<pp){pcrTrend='↓ FALLING';pcrTrendNote='PCR dropping → Bearish momentum';}
+    else if(pcr>=1&&prev<1){pcrTrend='⬆ BULL CROSS';pcrTrendNote='PCR crossed above 1.0 → Bullish flip!';}
+    else if(pcr<1&&prev>=1){pcrTrend='⬇ BEAR CROSS';pcrTrendNote='PCR crossed below 1.0 → Bearish flip!';}
+    else{pcrTrend='→ STABLE';pcrTrendNote='PCR steady — no crossover';}
+  }else{pcrTrend='→ COLLECTING';pcrTrendNote='Need 3+ snapshots for trend';}
+
+  // Wall distance
+  const wallStr=nearerDist<100?'🔥 AT WALL':nearerDist<200?'⚠️ NEAR WALL':nearerDist<400?'📍 APPROACHING':'✅ IN RANGE';
+  const wallNote=`${nearerDist.toFixed(0)} pts from ${nearerType} @ ${distRes<distSup?sr.res1:sr.sup1}`;
+
+  // Reversal score
+  const srScore=nearerDist<100?40:nearerDist<200?28:nearerDist<350?18:8;
+  const pcrScore=(pcr>1.5||pcr<0.5)?28:(pcr>1.3||pcr<0.7)?18:(pcr>1.1||pcr<0.9)?10:4;
+  const oiScore=Math.abs(atmPCR-1)>0.5?16:Math.abs(atmPCR-1)>0.25?10:4;
+  const vixScore=vix>22?14:vix>18?10:vix<12?8:4;
+  const total=Math.min(96,srScore+pcrScore+oiScore+vixScore);
+  let riskLbl,riskColor;
+  if(total>=70){riskLbl='HIGH ('+total+'%)';riskColor='var(--red)';}
+  else if(total>=45){riskLbl='MEDIUM ('+total+'%)';riskColor='var(--amber)';}
+  else{riskLbl='LOW ('+total+'%)';riskColor='var(--green)';}
+
+  // Prediction
+  let pred,predNote,predColor;
+  const bullRev=nearerType==='Support'&&atmPCR>1.2&&pcr>1.0;
+  const bearRev=nearerType==='Resistance'&&atmPCR<0.8&&pcr<1.0;
+  if(bullRev){pred='⬆ BULL REVERSAL';predNote='Bounce from support likely';predColor='var(--green)';}
+  else if(bearRev){pred='⬇ BEAR REVERSAL';predNote='Rejection at resistance likely';predColor='var(--red)';}
+  else if(total>55){pred='↔ WATCH ZONE';predNote='Elevated risk — monitor closely';predColor='var(--amber)';}
+  else{pred='▶ CONTINUATION';predNote='Trend likely to continue';predColor='var(--cyan)';}
+
+  $('revRisk').textContent=riskLbl;$('revRisk').style.color=riskColor;$('revRiskNote').textContent='SR+PCR+OI+VIX composite';
+  $('revOI').textContent=oiSig;$('revOINote').textContent=oiNote;
+  $('revPCR').textContent=pcrTrend;$('revPCRNote').textContent=pcrTrendNote;
+  $('revWall').textContent=wallStr;$('revWallNote').textContent=wallNote;
+  $('revPred').textContent=pred;$('revPred').style.color=predColor;$('revPredNote').textContent=predNote;
+}
+
+// ════════════════════════════════════════════
+//  RENDER OPTION CHAIN
+// ════════════════════════════════════════════
+function renderChain(sr){
+  const tb=$('chainBody');tb.innerHTML='';
+  const atm=sr.atm;
+  const rng=parseInt($('rngSel').value)||1500;
+  const vis=optRows.filter(r=>Math.abs(r.strike_price-atm)<=rng);
+  $('chainCount').textContent=`(${vis.length} strikes)`;
+  const maxCeOI=Math.max(...vis.map(r=>r.calloptions?.marketdata?.oi||0))||1;
+  const maxPeOI=Math.max(...vis.map(r=>r.putoptions?.marketdata?.oi||0))||1;
+  const totalCE=vis.reduce((s,r)=>s+(r.calloptions?.marketdata?.oi||0),0)||1;
+  const totalPE=vis.reduce((s,r)=>s+(r.putoptions?.marketdata?.oi||0),0)||1;
+
+  vis.forEach((row,i)=>{
+    const isATM=row.strike_price===atm;
+    const isRes1=row.strike_price===sr.res1;
+    const isRes2=row.strike_price===sr.res2;
+    const isSup1=row.strike_price===sr.sup1;
+    const isSup2=row.strike_price===sr.sup2;
+    const ce=row.calloptions?.marketdata||{};
+    const pe=row.putoptions?.marketdata||{};
+    const ceChg=fmtChg(ce.oi_day_change_percentage);
+    const peChg=fmtChg(pe.oi_day_change_percentage);
+    const ceBar=((ce.oi||0)/maxCeOI*100).toFixed(1);
+    const peBar=((pe.oi||0)/maxPeOI*100).toFixed(1);
+    const cePctOfTotal=((ce.oi||0)/totalCE*100).toFixed(1);
+    const pePctOfTotal=((pe.oi||0)/totalPE*100).toFixed(1);
+    const tr=document.createElement('tr');
+    if(isATM)tr.classList.add('atm-row');
+    if(isRes1)tr.classList.add('sr-res1');
+    else if(isRes2)tr.classList.add('sr-res2');
+    if(isSup1)tr.classList.add('sr-sup1');
+    else if(isSup2)tr.classList.add('sr-sup2');
+
+    // Strike label extras
+    let strikeExtra='';
+    if(isATM)strikeExtra+='<span class="atm-tag">ATM</span>';
+    if(isRes1)strikeExtra+='<span class="sr-tag sr-tag-r">R1</span>';
+    if(isRes2)strikeExtra+='<span class="sr-tag sr-tag-r">R2</span>';
+    if(isSup1)strikeExtra+='<span class="sr-tag sr-tag-s">S1</span>';
+    if(isSup2)strikeExtra+='<span class="sr-tag sr-tag-s">S2</span>';
+
+    tr.innerHTML=`
+      <td class="td-ce oi-rel"><span class="oi-val">${fmtOI(ce.oi)}</span><div class="oi-bg ce" style="width:${ceBar}%"></div></td>
+      <td class="td-ce" style="color:var(--blue2);font-size:10px">${cePctOfTotal}%</td>
+      <td class="td-ce"><span class="col-chg ${ceChg.c}">${ceChg.t}</span></td>
+      <td class="td-ce" style="color:var(--muted2)">${fmtOI(ce.volume)}</td>
+      <td class="td-ce col-iv">${fmtN(ce.iv,1)}</td>
+      <td class="td-ce col-ltp">₹${fmtN(ce.ltp)}</td>
+      <td class="td-sk ${isATM?'atm':''}">${row.strike_price}${strikeExtra}</td>
+      <td class="td-pe col-ltp">₹${fmtN(pe.ltp)}</td>
+      <td class="td-pe col-iv">${fmtN(pe.iv,1)}</td>
+      <td class="td-pe" style="color:var(--muted2)">${fmtOI(pe.volume)}</td>
+      <td class="td-pe"><span class="col-chg ${peChg.c}">${peChg.t}</span></td>
+      <td class="td-pe" style="color:var(--red);font-size:10px">${pePctOfTotal}%</td>
+      <td class="td-pe oi-rel"><span class="oi-val">${fmtOI(pe.oi)}</span><div class="oi-bg pe" style="width:${peBar}%"></div></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════
+//  RENDER OI HISTORY TABLE
+// ════════════════════════════════════════════
+function recordOIHistory(oi,sr){
+  const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const ceDelta=lastCeOI?oi.ce-lastCeOI:null;
+  const peDelta=lastPeOI?oi.pe-lastPeOI:null;
+  lastCeOI=oi.ce;lastPeOI=oi.pe;
+  const volTotal=oi.ceVol+oi.peVol||1;
+  const volDiffPct=((oi.peVol-oi.ceVol)/volTotal*100);
+  const volPCR=oi.ceVol?oi.peVol/oi.ceVol:0;
+  oiHistory.unshift({
+    t,ce:oi.ce,pe:oi.pe,diffPct:oi.diffPct,pcr:oi.pcr,ceDelta,peDelta,
+    volDiffPct,volPCR,
+    res1:sr.res1,res1OI:sr.res1OI,res1Vol:sr.res1Vol,res1Chg:sr.res1Chg,
+    sup1:sr.sup1,sup1OI:sr.sup1OI,sup1Vol:sr.sup1Vol,sup1Chg:sr.sup1Chg,
+  });
+  if(oiHistory.length>30)oiHistory.pop();
+}
+
+function renderOIHistory(){
+  const tb=$('oiHistBody');tb.innerHTML='';
+  if(!oiHistory.length){
+    tb.innerHTML='<tr><td colspan="19" style="color:var(--muted2);padding:16px;text-align:center">No history yet — refresh to record snapshots</td></tr>';
+    return;
+  }
+  oiHistory.forEach((h,i)=>{
+    const pcr=h.pcr;
+    let pcrSig,pcrClass;
+    if(pcr>=1.2){pcrSig='🚀 BULLISH';pcrClass='pcr-bull';}
+    else if(pcr>=1.0){pcrSig='↑ MILD BULL';pcrClass='pcr-bull';}
+    else if(pcr>=0.8){pcrSig='→ NEUTRAL';pcrClass='pcr-neut';}
+    else if(pcr>=0.7){pcrSig='↓ MILD BEAR';pcrClass='pcr-bear';}
+    else{pcrSig='📉 BEARISH';pcrClass='pcr-bear';}
+
+    const ceDClass=h.ceDelta>0?'oi-rise':h.ceDelta<0?'oi-fall':'oi-flat';
+    const peDClass=h.peDelta>0?'oi-rise':h.peDelta<0?'oi-fall':'oi-flat';
+    const diffPct=h.diffPct;
+    const r1ChgCls=h.res1Chg>0?'oi-rise':h.res1Chg<0?'oi-fall':'oi-flat';
+    const s1ChgCls=h.sup1Chg>0?'oi-rise':h.sup1Chg<0?'oi-fall':'oi-flat';
+    const vdPct=h.volDiffPct!=null?h.volDiffPct:null;
+    const vPCR=h.volPCR!=null?h.volPCR:null;
+    const vdClass=vdPct>0?'pcr-bull':vdPct<0?'pcr-bear':'pcr-neut';
+    const vPCRClass=vPCR>=1?'pcr-bull':vPCR>=0.8?'pcr-neut':'pcr-bear';
+
+    let bias,biasColor;
+    if(pcr>=1.2){bias='📈 BULLISH';biasColor='var(--green)';}
+    else if(pcr>=1.0){bias='🔼 MILD BULL';biasColor='var(--teal)';}
+    else if(pcr>=0.8){bias='➡️ NEUTRAL';biasColor='var(--amber)';}
+    else{bias='📉 BEARISH';biasColor='var(--red)';}
+
+    const tr=document.createElement('tr');
+    if(i===0)tr.style.fontWeight='700';
+    tr.innerHTML=`
+      <td style="color:${i===0?'var(--cyan)':'var(--muted2)'};font-size:10px;white-space:nowrap">${h.t}${i===0?'<br><span style="font-size:8px;background:rgba(0,229,255,.15);color:var(--cyan);padding:1px 4px;border-radius:3px">LATEST</span>':''}</td>
+      <td style="color:var(--blue2)">${fmtOI(h.ce)}</td>
+      <td style="color:var(--red)">${fmtOI(h.pe)}</td>
+      <td style="color:${diffPct>=0?'var(--green)':'var(--red)'};font-weight:700;font-size:13px">${diffPct>=0?'+':''}${diffPct.toFixed(2)}%</td>
+      <td style="color:var(--cyan);font-weight:700">${pcr.toFixed(3)}</td>
+      <td class="${vdClass}">${vdPct!=null?(vdPct>=0?'+':'')+vdPct.toFixed(2)+'%':'—'}</td>
+      <td class="${vPCRClass}">${vPCR!=null?vPCR.toFixed(3):'—'}</td>
+      <td class="${pcrClass}">${pcrSig}</td>
+      <td class="${ceDClass}">${h.ceDelta!=null?(h.ceDelta>=0?'+':'')+fmtOI(h.ceDelta):'—'}</td>
+      <td class="${peDClass}">${h.peDelta!=null?(h.peDelta>=0?'+':'')+fmtOI(h.peDelta):'—'}</td>
+      <td style="border-left:1px solid var(--border2);color:var(--red);font-family:var(--head);font-size:14px;font-weight:800">${h.res1}</td>
+      <td style="color:var(--red)">${fmtOI(h.res1OI)}</td>
+      <td style="color:var(--muted2)">${fmtOI(h.res1Vol)}</td>
+      <td class="${r1ChgCls}">${h.res1Chg!=null?(h.res1Chg>=0?'+':'')+h.res1Chg.toFixed(1)+'%':'—'}</td>
+      <td style="border-left:1px solid var(--border2);color:var(--green);font-family:var(--head);font-size:14px;font-weight:800">${h.sup1}</td>
+      <td style="color:var(--green)">${fmtOI(h.sup1OI)}</td>
+      <td style="color:var(--muted2)">${fmtOI(h.sup1Vol)}</td>
+      <td class="${s1ChgCls}">${h.sup1Chg!=null?(h.sup1Chg>=0?'+':'')+h.sup1Chg.toFixed(1)+'%':'—'}</td>
+      <td style="border-left:1px solid var(--border2);color:${biasColor};font-weight:700">${bias}</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════════════════
+function renderAll(){
+  const oi=computeOI();
+  const sr=computeSR();
+  // Simulated VIX update in demo
+  if(!isLive) vix=12+Math.random()*6;
+  renderIntel(oi,sr);
+  renderSR(sr);
+  renderNearSR();
+  renderVolume(oi);
+  renderGreekFever();
+  renderReversal(oi,sr);
+  renderChain(sr);
+  recordOIHistory(oi,sr);
+  renderOIHistory();
+}
+
+// ════════════════════════════════════════════
+//  STORAGE KEYS
+// ════════════════════════════════════════════
+const LS_KEYS   = 'np_keys';
+const LS_USERS  = 'np_users';
+const LS_PAYS   = 'np_payments';
+const LS_CFG    = 'np_config';
+const LS_ACT    = 'np_activated';
+const LS_SESS   = 'np_session';
+
+// ── defaults ──
+const DEFAULT_CFG = {
+  upiId:'niftypro@upi', upiName:'NIFTY PRO Owner', upiBank:'UPI Payment',
+  adminUser:'niftypro_admin', adminPass:'NiftyPro@2025!',
+  prices:{30:199,90:499,180:799,365:1299,9999:2499}
+};
+
+function getCfg(){try{return Object.assign({},DEFAULT_CFG,JSON.parse(localStorage.getItem(LS_CFG)||'{}'));}catch{return DEFAULT_CFG;}}
+function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
+function getKeys(){try{return JSON.parse(localStorage.getItem(LS_KEYS)||'[]');}catch{return[];}}
+function saveKeys(k){localStorage.setItem(LS_KEYS,JSON.stringify(k));}
+function getUsers(){try{return JSON.parse(localStorage.getItem(LS_USERS)||'[]');}catch{return[];}}
+function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u));}
+function getPays(){try{return JSON.parse(localStorage.getItem(LS_PAYS)||'[]');}catch{return[];}}
+function savePays(p){localStorage.setItem(LS_PAYS,JSON.stringify(p));}
+function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESS)||'null');}catch{return null;}}
+function saveSession(s){localStorage.setItem(LS_SESS,JSON.stringify(s));}
+function clearSession(){localStorage.removeItem(LS_SESS);}
+
+let currentUser=null, selectedPlanDays=180, selectedPlanPrice=799;
+
+// ── QR Generator ──
+let qrInstance=null;
+function generateQR(text){
+  const el=document.getElementById('qrCanvas');
+  if(!el)return;
+  // Use simple pixel QR via canvas
+  el.width=110;el.height=110;
+  const ctx=el.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,110,110);
+  ctx.fillStyle='#000';
+  ctx.font='7px monospace';ctx.textAlign='center';
+  // Draw simple UPI text display (real QR needs library)
+  try{
+    if(window.QRCode){
+      const div=document.createElement('div');
+      new window.QRCode(div,{text,width:110,height:110,colorDark:'#000',colorLight:'#fff'});
+      setTimeout(()=>{const img=div.querySelector('img')||div.querySelector('canvas');
+        if(img){const i=new Image();i.onload=()=>{ctx.clearRect(0,0,110,110);ctx.fillStyle='#fff';ctx.fillRect(0,0,110,110);ctx.drawImage(i,0,0,110,110);};i.src=img.src||img.toDataURL();}},100);
+    }else{
+      // Fallback: draw UPI string as pattern indicator
+      ctx.fillStyle='#000';
+      for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+        if((r<3||r>3)&&(c<3||c>3))ctx.fillRect(10+c*13,10+r*13,11,11);
+      }
+      ctx.fillStyle='#000';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
+      ctx.fillText('UPI PAY',55,75);
+      ctx.font='6px sans-serif';
+      const upi=text.split('pa=')[1]||text;
+      ctx.fillText(upi.slice(0,16),55,85);
+    }
+  }catch(e){console.log(e);}
+}
+
+function updateQR(){
+  const cfg=getCfg();
+  const upiStr=`upi://pay?pa=${cfg.upiId}&pn=${encodeURIComponent(cfg.upiName)}&am=${selectedPlanPrice}&cu=INR`;
+  generateQR(upiStr);
+  const el=document.getElementById('upiIdText');if(el)el.textContent=cfg.upiId;
+  const n=document.getElementById('dispUpiName');if(n)n.textContent=cfg.upiName;
+  const b=document.getElementById('dispUpiBank');if(b)b.textContent=cfg.upiBank;
+  const a=document.getElementById('payAmountDisp');if(a)a.textContent='₹'+selectedPlanPrice;
+}
+
+function copyUPI(){
+  const cfg=getCfg();
+  navigator.clipboard.writeText(cfg.upiId).catch(()=>{});
+  const el=document.getElementById('upiIdText');
+  if(el){const orig=el.style.color;el.style.color='var(--cyan)';setTimeout(()=>el.style.color=orig,1200);}
+}
+
+// ── Screen router ──
+function showScreen(id){
+  ['screenAuth','screenPay','screenPending','screenActivate'].forEach(s=>{
+    const el=document.getElementById(s);if(el)el.style.display='none';
+  });
+  const t=document.getElementById(id);if(t)t.style.display='';
+}
+
+function switchAuthTab(tab){
+  document.getElementById('loginForm').style.display=tab==='login'?'':'none';
+  document.getElementById('signupForm').style.display=tab==='signup'?'':'none';
+  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+  document.getElementById('tabSignup').classList.toggle('active',tab==='signup');
+}
+
+// ── User Auth ──
+function userLogin(){
+  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginErr');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Please enter email and password.';return;}
+  const users=getUsers();
+  const u=users.find(x=>x.email===email&&x.pass===btoa(pass));
+  if(!u){err.textContent='❌ Invalid email or password.';return;}
+  currentUser=u;saveSession({email:u.email,name:u.name});
+  document.getElementById('payUserName').textContent='Hi, '+u.name;
+  afterLogin(u);
+}
+
+function afterLogin(u){
+  // Check if already activated
+  const act=JSON.parse(localStorage.getItem(LS_ACT)||'null');
+  if(act&&new Date(act.expires)>=new Date()){
+    document.getElementById('authModal').classList.remove('show');
+    isActivated=true;loadDemo();return;
+  }
+  // Check for pending payment
+  const pays=getPays();
+  const pending=pays.find(p=>p.email===u.email&&p.status==='pending');
+  if(pending){
+    document.getElementById('pendingUTR').textContent=pending.utr;
+    showScreen('screenPending');return;
+  }
+  // No key — show activate or buy
+  showScreen('screenActivate');
+}
+
+function userSignup(){
+  const name=document.getElementById('signName').value.trim();
+  const email=document.getElementById('signEmail').value.trim().toLowerCase();
+  const phone=document.getElementById('signPhone').value.trim();
+  const pass=document.getElementById('signPass').value;
+  const pass2=document.getElementById('signPass2').value;
+  const err=document.getElementById('signupErr');
+  const ok=document.getElementById('signupOk');
+  err.textContent='';ok.textContent='';
+  if(!name||!email||!pass){err.textContent='Please fill all required fields.';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  if(pass!==pass2){err.textContent='Passwords do not match.';return;}
+  const users=getUsers();
+  if(users.find(u=>u.email===email)){err.textContent='❌ This email is already registered.';return;}
+  const nu={name,email,phone,pass:btoa(pass),registered:new Date().toISOString().split('T')[0],status:'active',licenseKey:null};
+  users.push(nu);saveUsers(users);
+  currentUser=nu;saveSession({email:nu.email,name:nu.name});
+  ok.textContent='✅ Account created! Redirecting…';
+  document.getElementById('payUserName').textContent='Hi, '+name;
+  setTimeout(()=>{showScreen('screenPay');updateQR();},900);
+}
+
+// ── Plan selection ──
+function selectPlan(chip,days,price){
+  document.querySelectorAll('.plan-chip').forEach(c=>c.classList.remove('selected'));
+  chip.classList.add('selected');
+  selectedPlanDays=days;selectedPlanPrice=price;
+  updateQR();
+}
+
+// ── Payment submission ──
+function submitPayment(){
+  const utr=document.getElementById('utrInput').value.trim();
+  const err=document.getElementById('payErr');
+  const ok=document.getElementById('payOk');
+  err.textContent='';ok.textContent='';
+  if(!utr||utr.length<6){err.textContent='Please enter a valid UTR / transaction number.';return;}
+  if(!currentUser){err.textContent='Session expired. Please login again.';return;}
+  const cfg=getCfg();
+  const pays=getPays();
+  const planLabel=selectedPlanDays===9999?'Lifetime':selectedPlanDays+' Days';
+  pays.push({
+    email:currentUser.email,name:currentUser.name,
+    plan:planLabel,planDays:selectedPlanDays,amount:selectedPlanPrice,
+    utr,date:new Date().toISOString().split('T')[0],status:'pending'
+  });
+  savePays(pays);
+  ok.textContent='✅ Payment proof submitted successfully!';
+  document.getElementById('pendingUTR').textContent=utr;
+  setTimeout(()=>showScreen('screenPending'),1000);
+}
+
+// ── Key activation ──
+function fmtKey(el){
+  let v=el.value.replace(/[^A-Z0-9]/gi,'').toUpperCase().slice(0,16);
+  let o='';for(let i=0;i<v.length;i++){if(i>0&&i%4===0)o+='-';o+=v[i];}
+  el.value=o;
+}
+
+function activateLicense(){
+  const inp=document.getElementById('actKeyIn');
+  const err=document.getElementById('actErr');
+  const ok=document.getElementById('actOk');
+  doActivate(inp,err,ok);
+}
+function activateLicense2(){
+  const inp=document.getElementById('actKeyIn2');
+  const err=document.getElementById('actErr2');
+  const ok=document.getElementById('actOk2');
+  doActivate(inp,err,ok);
+}
+function doActivate(inp,err,ok){
+  const key=inp.value.trim().toUpperCase();
+  err.textContent='';ok.textContent='';
+  if(key.length<19){err.textContent='Enter a complete 16-character key.';return;}
+  const keys=getKeys();
+  const idx=keys.findIndex(k=>k.key===key);
+  if(idx===-1){err.textContent='❌ Invalid key. Please check and try again.';return;}
+  const k=keys[idx];
+  if(k.status==='revoked'){err.textContent='❌ This key has been revoked. Contact admin.';return;}
+  if(k.status==='expired'||new Date(k.expires)<new Date()){keys[idx].status='expired';saveKeys(keys);err.textContent='❌ This key has expired.';return;}
+  if(k.status==='used'&&k.usedDevice&&k.usedDevice!==navigator.userAgent.slice(0,80)){
+    err.textContent='⚠️ Key already activated on another device. Contact admin.';return;
+  }
+  keys[idx].status='used';keys[idx].usedOn=new Date().toISOString().split('T')[0];keys[idx].usedDevice=navigator.userAgent.slice(0,80);
+  saveKeys(keys);
+  localStorage.setItem(LS_ACT,JSON.stringify({key,plan:k.plan,planDays:k.planDays,expires:k.expires,activatedOn:new Date().toISOString()}));
+  ok.textContent='✅ License activated! Welcome to NIFTY PRO!';
+  setTimeout(()=>{document.getElementById('authModal').classList.remove('show');isActivated=true;loadDemo();},1400);
+}
+
+function enterDemo(){
+  document.getElementById('authModal').classList.remove('show');
+  const wm=document.createElement('div');
+  wm.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-family:Barlow Condensed,sans-serif;font-size:80px;font-weight:800;color:rgba(255,255,255,.025);pointer-events:none;z-index:1;white-space:nowrap;user-select:none;letter-spacing:4px';
+  wm.textContent='DEMO MODE';document.body.appendChild(wm);
+  loadDemo();
+}
+
+function checkActivation(){
+  const act=JSON.parse(localStorage.getItem(LS_ACT)||'null');
+  if(act&&(new Date(act.expires)>=new Date()||act.planDays===9999)){
+    isActivated=true;document.getElementById('authModal').classList.remove('show');loadDemo();return;
+  }
+  const sess=getSession();
+  if(sess){
+    const users=getUsers();
+    const u=users.find(x=>x.email===sess.email);
+    if(u){currentUser=u;document.getElementById('payUserName').textContent='Hi, '+u.name;afterLogin(u);return;}
+  }
+  document.getElementById('authModal').classList.add('show');
+  showScreen('screenAuth');
+}
+
+// ── Admin ──
+function showAdminLogin(){
+  document.getElementById('adminModal').classList.add('show');
+  document.getElementById('admLoginScreen').style.display='';
+  document.getElementById('admDashScreen').style.display='none';
+  document.getElementById('admLoginErr').textContent='';
+}
+function closeAdminModal(){document.getElementById('adminModal').classList.remove('show');}
+
+function adminLogin(){
+  const u=document.getElementById('admUser').value.trim();
+  const p=document.getElementById('admPass').value;
+  const cfg=getCfg();
+  if(u===cfg.adminUser&&p===cfg.adminPass){
+    document.getElementById('admLoginScreen').style.display='none';
+    document.getElementById('admDashScreen').style.display='';
+    // Close auth modal — show software interface
+    document.getElementById('authModal').classList.remove('show');
+    renderAdminDash();
+    loadDemo();
+  }else{
+    document.getElementById('admLoginErr').textContent='❌ Invalid credentials.';
+  }
+}
+function adminLogout(){
+  document.getElementById('admDashScreen').style.display='none';
+  document.getElementById('admLoginScreen').style.display='';
+  document.getElementById('admUser').value='';document.getElementById('admPass').value='';
+  document.getElementById('adminModal').classList.remove('show');
+}
+
+function admTab(id){
+  ['tabKeys','tabUsers','tabPayments','tabSettings'].forEach(t=>{
+    const el=document.getElementById(t);if(el)el.style.display=t===id?'':'none';
+  });
+  const navMap={tabKeys:'navKeys',tabUsers:'navUsers',tabPayments:'navPayments',tabSettings:'navSettings'};
+  Object.values(navMap).forEach(n=>{const el=document.getElementById(n);if(el)el.classList.remove('act');});
+  const active=document.getElementById(navMap[id]);if(active)active.classList.add('act');
+  if(id==='tabSettings')loadSettingsForm();
+  if(id==='tabUsers')renderAdminUsers();
+  if(id==='tabPayments')renderAdminPays();
+}
+
+function renderAdminDash(){
+  renderAdminStats();renderAdminKeys();
+}
+
+function renderAdminStats(){
+  const keys=getKeys();const users=getUsers();const pays=getPays();
+  const now=new Date();
+  let active=0,used=0,expired=0;
+  keys.forEach(k=>{
+    if(k.status==='revoked')return;
+    if(k.status==='expired'||new Date(k.expires)<now)expired++;
+    else if(k.status==='used')used++;
+    else active++;
+  });
+  const pending=pays.filter(p=>p.status==='pending').length;
+  const ss=n=>document.getElementById(n);
+  if(ss('stTotal'))ss('stTotal').textContent=keys.length;
+  if(ss('stActive'))ss('stActive').textContent=active;
+  if(ss('stUsed'))ss('stUsed').textContent=used;
+  if(ss('stExpired'))ss('stExpired').textContent=expired;
+  if(ss('stUsers'))ss('stUsers').textContent=users.length;
+  if(ss('stPending'))ss('stPending').textContent=pending;
+}
+
+function generateKeys(){
+  const plan=parseInt(document.getElementById('genPlan').value);
+  const note=document.getElementById('genNote').value.trim()||'—';
+  const count=Math.min(50,parseInt(document.getElementById('genCount').value)||1);
+  const cfg=getCfg();
+  const keys=getKeys();
+  const newKeys=[];
+  const now=new Date();
+  const exp=plan===9999?'2099-12-31':new Date(now.getTime()+plan*86400000).toISOString().split('T')[0];
+  const planLabel=plan===9999?'Lifetime':plan+' Days';
+  for(let i=0;i<count;i++){
+    let k;const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    do{const s=()=>Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');k=`${s()}-${s()}-${s()}-${s()}`;}
+    while(keys.find(x=>x.key===k));
+    keys.push({key:k,status:'active',plan:planLabel,planDays:plan,note,created:now.toISOString().split('T')[0],expires:exp,usedOn:null,usedDevice:null});
+    newKeys.push(k);
+  }
+  saveKeys(keys);
+  const out=document.getElementById('genOutput');
+  out.style.display='block';
+  out.innerHTML='<div style="color:var(--muted2);font-size:9px;margin-bottom:6px">GENERATED — Click to copy</div>'+newKeys.map(k=>`<div class="key-mono" onclick="copyText('${k}')" style="margin-bottom:3px">${k}</div>`).join('');
+  renderAdminStats();renderAdminKeys();
+}
+
+function renderAdminKeys(){
+  const q=(document.getElementById('keySearch')?.value||'').toUpperCase();
+  const flt=document.getElementById('keyFilter')?.value||'all';
+  const now=new Date();
+  let keys=getKeys().filter(k=>{
+    if(q&&!k.key.includes(q)&&!k.note.toUpperCase().includes(q))return false;
+    if(flt==='all')return true;
+    const s=k.status==='revoked'?'revoked':new Date(k.expires)<now&&k.planDays!==9999?'expired':k.status;
+    return s===flt;
+  });
+  const tb=document.getElementById('admKeysTbody');if(!tb)return;
+  tb.innerHTML='';
+  if(!keys.length){tb.innerHTML='<tr><td colspan="8" style="padding:16px;text-align:center;color:var(--muted2)">No keys found</td></tr>';return;}
+  const now2=new Date();
+  keys.slice().reverse().forEach(k=>{
+    const isExp=new Date(k.expires)<now2&&k.planDays!==9999&&k.status!=='revoked';
+    const status=k.status==='revoked'?'revoked':isExp?'expired':k.status;
+    const cls={active:'key-active',used:'key-used',expired:'key-expired',revoked:'key-revoked'}[status]||'';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="key-mono" onclick="copyText('${k.key}')" title="Click to copy">${k.key}</span></td>
+      <td class="${cls}">${status.toUpperCase()}</td>
+      <td style="color:var(--muted2)">${k.plan}</td>
+      <td style="color:var(--muted2);font-size:10px">${k.note}</td>
+      <td style="color:var(--muted2);font-size:10px">${k.created}</td>
+      <td style="color:var(--muted2);font-size:10px">${k.expires}</td>
+      <td style="color:var(--muted2);font-size:10px">${k.usedOn||'—'}</td>
+      <td>${status!=='revoked'?`<button class="adm-btn adm-btn-del" style="font-size:9px;padding:3px 8px" onclick="revokeKey('${k.key}')">Revoke</button>`:'<span style="font-size:10px;color:var(--muted)">Revoked</span>'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderAdminUsers(){
+  const users=getUsers();
+  const tb=document.getElementById('admUsersTbody');if(!tb)return;
+  tb.innerHTML='';
+  if(!users.length){tb.innerHTML='<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--muted2)">No users registered yet</td></tr>';return;}
+  users.slice().reverse().forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--text)">${u.name}</td>
+      <td style="color:var(--blue2)">${u.email}</td>
+      <td style="color:var(--muted2)">${u.phone||'—'}</td>
+      <td style="color:var(--muted2);font-size:10px">${u.registered}</td>
+      <td class="${u.status==='active'?'key-active':'key-revoked'}">${(u.status||'active').toUpperCase()}</td>
+      <td style="color:var(--muted2);font-size:10px">${u.licenseKey||'—'}</td>
+      <td>
+        <button class="adm-btn adm-btn-blue" style="font-size:9px;padding:3px 8px" onclick="sendKey('${u.email}')">Send Key</button>
+        <button class="adm-btn adm-btn-del" style="font-size:9px;padding:3px 8px;margin-left:4px" onclick="banUser('${u.email}')">${u.status==='banned'?'Unban':'Ban'}</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderAdminPays(){
+  const pays=getPays();
+  const tb=document.getElementById('admPaysTbody');if(!tb)return;
+  tb.innerHTML='';
+  if(!pays.length){tb.innerHTML='<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--muted2)">No payment requests yet</td></tr>';return;}
+  pays.slice().reverse().forEach((p,ri)=>{
+    const idx=pays.length-1-ri;
+    const tr=document.createElement('tr');
+    const badgeCls={pending:'pending',approved:'approved',rejected:'rejected'}[p.status]||'pending';
+    tr.innerHTML=`
+      <td style="color:var(--text)">${p.name}<br><span style="color:var(--muted2);font-size:9px">${p.email}</span></td>
+      <td style="color:var(--muted2)">${p.plan}</td>
+      <td style="color:var(--amber);font-weight:700">₹${p.amount}</td>
+      <td><span class="key-mono" onclick="copyText('${p.utr}')" style="font-size:10px">${p.utr}</span></td>
+      <td style="color:var(--muted2);font-size:10px">${p.date}</td>
+      <td><span class="pay-req-badge ${badgeCls}">${p.status.toUpperCase()}</span></td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        ${p.status==='pending'?`
+          <button class="adm-btn adm-btn-green" style="font-size:9px;padding:3px 8px" onclick="approvePayment(${idx})">✅ Approve</button>
+          <button class="adm-btn adm-btn-del" style="font-size:9px;padding:3px 8px" onclick="rejectPayment(${idx})">✕ Reject</button>`
+        :'<span style="color:var(--muted);font-size:10px">Done</span>'}
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function approvePayment(idx){
+  const pays=getPays();
+  const p=pays[idx];if(!p)return;
+  // Generate a key for this user
+  const keys=getKeys();
+  const now=new Date();
+  const exp=p.planDays===9999?'2099-12-31':new Date(now.getTime()+p.planDays*86400000).toISOString().split('T')[0];
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let k;
+  do{const s=()=>Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');k=`${s()}-${s()}-${s()}-${s()}`;}
+  while(keys.find(x=>x.key===k));
+  keys.push({key:k,status:'active',plan:p.plan,planDays:p.planDays,note:p.name+' / '+p.email,created:now.toISOString().split('T')[0],expires:exp,usedOn:null,usedDevice:null});
+  saveKeys(keys);
+  pays[idx].status='approved';pays[idx].generatedKey=k;savePays(pays);
+  // Update user record
+  const users=getUsers();const ui=users.findIndex(u=>u.email===p.email);
+  if(ui!==-1){users[ui].licenseKey=k;saveUsers(users);}
+  alert(`✅ Payment approved!\nGenerated key: ${k}\n\nSend this key to the user via email/WhatsApp.`);
+  renderAdminPays();renderAdminStats();renderAdminKeys();
+}
+
+function rejectPayment(idx){
+  const pays=getPays();
+  if(!pays[idx])return;
+  pays[idx].status='rejected';savePays(pays);
+  renderAdminPays();renderAdminStats();
+}
+
+function revokeKey(k){
+  const keys=getKeys();const idx=keys.findIndex(x=>x.key===k);
+  if(idx!==-1){keys[idx].status='revoked';saveKeys(keys);}
+  renderAdminStats();renderAdminKeys();
+}
+
+function banUser(email){
+  const users=getUsers();const idx=users.findIndex(u=>u.email===email);
+  if(idx!==-1){users[idx].status=users[idx].status==='banned'?'active':'banned';saveUsers(users);}
+  renderAdminUsers();
+}
+
+function sendKey(email){
+  const keys=getKeys();
+  const availKey=keys.find(k=>k.status==='active');
+  if(!availKey){alert('No active keys available. Generate some first.');return;}
+  const users=getUsers();const ui=users.findIndex(u=>u.email===email);
+  if(ui!==-1){users[ui].licenseKey=availKey.key;saveUsers(users);}
+  availKey.note=availKey.note||email;
+  saveKeys(keys);
+  alert(`Key assigned to ${email}:\n${availKey.key}\n\nCopy and send this via email or WhatsApp.`);
+  renderAdminUsers();renderAdminKeys();
+}
+
+function copyText(t){
+  navigator.clipboard.writeText(t).catch(()=>{});
+  // flash feedback
+  event?.target&&(event.target.style.color='var(--green)',setTimeout(()=>event.target.style.color='',1000));
+}
+
+function loadSettingsForm(){
+  const cfg=getCfg();
+  document.getElementById('cfgUpiId').value=cfg.upiId||'';
+  document.getElementById('cfgUpiName').value=cfg.upiName||'';
+  document.getElementById('cfgUpiBank').value=cfg.upiBank||'';
+  document.getElementById('cfgP30').value=cfg.prices?.[30]||199;
+  document.getElementById('cfgP90').value=cfg.prices?.[90]||499;
+  document.getElementById('cfgP180').value=cfg.prices?.[180]||799;
+  document.getElementById('cfgP365').value=cfg.prices?.[365]||1299;
+  document.getElementById('cfgPLife').value=cfg.prices?.[9999]||2499;
+}
+
+function saveUPISettings(){
+  const cfg=getCfg();
+  cfg.upiId=document.getElementById('cfgUpiId').value.trim()||cfg.upiId;
+  cfg.upiName=document.getElementById('cfgUpiName').value.trim()||cfg.upiName;
+  cfg.upiBank=document.getElementById('cfgUpiBank').value.trim()||cfg.upiBank;
+  saveCfg(cfg);
+  document.getElementById('settingsSavedMsg').textContent='✅ UPI settings saved!';
+  setTimeout(()=>document.getElementById('settingsSavedMsg').textContent='',2000);
+}
+
+function savePriceSettings(){
+  const cfg=getCfg();
+  cfg.prices={
+    30:parseInt(document.getElementById('cfgP30').value)||199,
+    90:parseInt(document.getElementById('cfgP90').value)||499,
+    180:parseInt(document.getElementById('cfgP180').value)||799,
+    365:parseInt(document.getElementById('cfgP365').value)||1299,
+    9999:parseInt(document.getElementById('cfgPLife').value)||2499
+  };
+  saveCfg(cfg);
+  document.getElementById('settingsSavedMsg').textContent='✅ Prices saved!';
+  setTimeout(()=>document.getElementById('settingsSavedMsg').textContent='',2000);
+}
+
+function changeAdminPass(){
+  const p1=document.getElementById('newAdmPass').value;
+  const p2=document.getElementById('newAdmPass2').value;
+  const msg=document.getElementById('passChangeMsg');
+  if(!p1||p1.length<6){msg.textContent='Password must be at least 6 characters.';msg.style.color='var(--red)';return;}
+  if(p1!==p2){msg.textContent='Passwords do not match.';msg.style.color='var(--red)';return;}
+  const cfg=getCfg();cfg.adminPass=p1;saveCfg(cfg);
+  msg.textContent='✅ Password changed successfully!';msg.style.color='var(--green)';
+  document.getElementById('newAdmPass').value='';document.getElementById('newAdmPass2').value='';
+  setTimeout(()=>msg.textContent='',2500);
+}
+
+// ── Plan chip pricing update on load ──
+function refreshPlanPrices(){
+  const cfg=getCfg();
+  const chips=document.querySelectorAll('.plan-chip');
+  const plans=[[30,cfg.prices?.[30]||199],[90,cfg.prices?.[90]||499],[180,cfg.prices?.[180]||799],[365,cfg.prices?.[365]||1299],[9999,cfg.prices?.[9999]||2499]];
+  chips.forEach((c,i)=>{
+    if(plans[i]){
+      const pEl=c.querySelector('.pc-price');
+      if(pEl)pEl.textContent='₹'+plans[i][1];
+    }
+  });
+}
+
+// ════════════════════════════════════════════
+//  AUTO + STATUS + CLOCK
+// ════════════════════════════════════════════
+
+// ════════════════════════════════════════════
+//  GREEK FEVER
+// ════════════════════════════════════════════
+function computeGreekFever(){
+  if(!optRows.length)return null;
+  const atm=findATM();
+  // Use ATM ±3 strikes for "near ATM" computation, full chain for aggregate
+  const atmBand=optRows.filter(r=>Math.abs(r.strike_price-atm)<=150);
+  let ceD=0,ceG=0,ceT=0,ceV=0,ceCnt=0;
+  let peD=0,peG=0,peT=0,peV=0,peCnt=0;
+  let atmCEDelta=0,atmCEGamma=0,atmCETheta=0,atmCEVega=0;
+  let atmPEDelta=0,atmPEGamma=0,atmPETheta=0,atmPEVega=0;
+
+  optRows.forEach(r=>{
+    const oi_w=Math.max(1,r.calloptions?.marketdata?.oi||1);
+    const ce=r.calloptions?.marketdata||{};
+    const pe=r.putoptions?.marketdata||{};
+    if(ce.delta!=null){ceD+=ce.delta*oi_w;ceG+=ce.gamma*oi_w;ceT+=ce.theta*oi_w;ceV+=ce.vega*oi_w;ceCnt+=oi_w;}
+    if(pe.delta!=null){peD+=pe.delta*oi_w;peG+=pe.gamma*oi_w;peT+=pe.theta*oi_w;peV+=pe.vega*oi_w;peCnt+=oi_w;}
+  });
+  // ATM row
+  const atmRow=optRows.find(r=>r.strike_price===atm)||{};
+  const atmCE=atmRow.calloptions?.marketdata||{};
+  const atmPE=atmRow.putoptions?.marketdata||{};
+  atmCEDelta=atmCE.delta||0;atmCEGamma=atmCE.gamma||0;atmCETheta=atmCE.theta||0;atmCEVega=atmCE.vega||0;
+  atmPEDelta=atmPE.delta||0;atmPEGamma=atmPE.gamma||0;atmPETheta=atmPE.theta||0;atmPEVega=atmPE.vega||0;
+
+  const avgCED=ceCnt?ceD/ceCnt:0;
+  const avgCEG=ceCnt?ceG/ceCnt:0;
+  const avgCET=ceCnt?ceT/ceCnt:0;
+  const avgCEV=ceCnt?ceV/ceCnt:0;
+  const avgPED=peCnt?peD/peCnt:0;
+  const avgPEG=peCnt?peG/peCnt:0;
+  const avgPET=peCnt?peT/peCnt:0;
+  const avgPEV=peCnt?peV/peCnt:0;
+
+  // Scores: positive = bullish (CE dominant), negative = bearish (PE dominant)
+  // Delta: CE positive delta vs PE negative delta (absolute)
+  const deltaScore=(avgCED+Math.abs(avgPED))>0?(avgCED/(avgCED+Math.abs(avgPED))*100-50):0;
+  // Gamma: if CE gamma > PE gamma → more call acceleration (bearish indicator as resistance builds)
+  const gammaTotal=(avgCEG+Math.abs(avgPEG))||1;
+  const gammaScore=avgCEG/gammaTotal*100-50; // positive means call gamma dominant
+  // Theta: more CE theta drain → writers of calls dominate (bearish pressure)
+  const thetaTotal=(Math.abs(avgCET)+Math.abs(avgPET))||1;
+  const thetaCEPct=Math.abs(avgCET)/thetaTotal*100;
+  const thetaScore=50-thetaCEPct; // inverted: high CE theta drain = bearish
+  // Vega: more PE vega sensitivity = fear/put buying = bearish
+  const vegaTotal=(avgCEV+Math.abs(avgPEV))||1;
+  const vegaScore=avgCEV/vegaTotal*100-50; // positive = CE vega dominant = bullish
+
+  // Composite fever score: -100 (pure bearish/PUT) to +100 (pure bullish/CALL)
+  const raw=(deltaScore*0.35+gammaScore*0.25+thetaScore*0.2+vegaScore*0.2);
+  const fever=Math.max(-100,Math.min(100,raw));
+
+  return{
+    fever,deltaScore,gammaScore,thetaScore,vegaScore,
+    avgCED,avgCEG,avgCET,avgCEV,avgPED,avgPEG,avgPET,avgPEV,
+    atmCEDelta,atmCEGamma,atmCETheta,atmCEVega,
+    atmPEDelta,atmPEGamma,atmPETheta,atmPEVega,
+    ceCnt,peCnt
+  };
+}
+
+function renderGreekFever(){
+  const d=computeGreekFever();
+  if(!d)return;
+  const f=d.fever;
+
+  // Signal classification
+  let sig,sigColor,mainNote,badgeClass;
+  if(f>=55){sig='🔥 CALL FEVER';sigColor='var(--blue2)';mainNote='Strong bullish greek pressure — calls dominant';badgeClass='call';}
+  else if(f>=25){sig='📈 CALL BIAS';sigColor='var(--blue2)';mainNote='Bullish greek tilt — call greeks lead';badgeClass='call';}
+  else if(f>=10){sig='🔼 MILD CALL';sigColor='var(--teal)';mainNote='Slight call dominance — cautiously bullish';badgeClass='call';}
+  else if(f>=-10){sig='⚖️ NEUTRAL';sigColor='var(--amber)';mainNote='Balanced greeks — no directional fever';badgeClass='neutral';}
+  else if(f>=-25){sig='🔽 MILD PUT';sigColor='var(--amber)';mainNote='Slight put dominance — cautiously bearish';badgeClass='put';}
+  else if(f>=-55){sig='📉 PUT BIAS';sigColor='var(--red)';mainNote='Bearish greek tilt — put greeks lead';badgeClass='put';}
+  else{sig='❄️ PUT FEVER';sigColor='var(--red)';mainNote='Strong bearish greek pressure — puts dominant';badgeClass='put';}
+
+  $('gfFeverVal').textContent=sig;$('gfFeverVal').style.color=sigColor;
+  $('gfMainNote').textContent=mainNote;
+  $('gfBadge').textContent=badgeClass==='call'?'▲ CALL DOMINANT':badgeClass==='put'?'▼ PUT DOMINANT':'— NEUTRAL —';
+  $('gfBadge').className='gf-badge '+badgeClass;
+  $('gfSummary').textContent=`Fever Score: ${f>=0?'+':''}${f.toFixed(1)} | Greek bias: ${badgeClass.toUpperCase()}`;
+
+  // Score bars (map -50…+50 to 0…100%)
+  const toBar=s=>Math.max(2,Math.min(98,s+50));
+  const toBarColor=s=>s>10?'var(--green)':s<-10?'var(--red)':'var(--amber)';
+  $('gfDeltaBar').style.width=toBar(d.deltaScore)+'%';$('gfDeltaBar').style.background=toBarColor(d.deltaScore);
+  $('gfDeltaScore').textContent=(d.deltaScore>=0?'+':'')+d.deltaScore.toFixed(1);$('gfDeltaScore').style.color=toBarColor(d.deltaScore);
+  $('gfGammaBar').style.width=toBar(d.gammaScore)+'%';$('gfGammaBar').style.background=toBarColor(d.gammaScore);
+  $('gfGammaScore').textContent=(d.gammaScore>=0?'+':'')+d.gammaScore.toFixed(1);$('gfGammaScore').style.color=toBarColor(d.gammaScore);
+  $('gfThetaBar').style.width=toBar(d.thetaScore)+'%';$('gfThetaBar').style.background=toBarColor(d.thetaScore);
+  $('gfThetaScore').textContent=(d.thetaScore>=0?'+':'')+d.thetaScore.toFixed(1);$('gfThetaScore').style.color=toBarColor(d.thetaScore);
+  $('gfVegaBar').style.width=toBar(d.vegaScore)+'%';$('gfVegaBar').style.background=toBarColor(d.vegaScore);
+  $('gfVegaScore').textContent=(d.vegaScore>=0?'+':'')+d.vegaScore.toFixed(1);$('gfVegaScore').style.color=toBarColor(d.vegaScore);
+
+  // SVG needle: -100 → -90deg, 0 → 0deg, +100 → +90deg
+  const angle=(f/100)*90;
+  $('gfNeedle').setAttribute('transform',`rotate(${angle},50,80)`);
+  $('gfGaugeText').textContent=`${f>=0?'+':''}${f.toFixed(0)}`;
+
+  // Card classes
+  const cardClass=f>=10?'ce-dom':f<=-10?'pe-dom':'neut';
+  ['gfDeltaCard','gfGammaCard','gfThetaCard','gfVegaCard','gfAtmCard'].forEach(id=>{
+    const el=$(id);if(el)el.className='gf-card '+cardClass;
+  });
+  $('gfMainCard').className='gf-main-card';
+
+  // Delta card detail
+  $('gfCEDelta').textContent='CE: '+d.avgCED.toFixed(4);
+  $('gfPEDelta').textContent='PE: '+d.avgPED.toFixed(4);
+  $('gfDeltaNote').textContent=d.deltaScore>5?'Net delta bullish — calls leading':d.deltaScore<-5?'Net delta bearish — puts leading':'Delta balanced — neutral';
+  const dTotal=Math.abs(d.avgCED)+Math.abs(d.avgPED)||1;
+  $('gfDeltaCEBar').style.flex=Math.abs(d.avgCED)/dTotal*10;
+  $('gfDeltaPEBar').style.flex=Math.abs(d.avgPED)/dTotal*10;
+
+  // Gamma card
+  $('gfCEGamma').textContent='CE: '+d.avgCEG.toFixed(5);
+  $('gfPEGamma').textContent='PE: '+d.avgPEG.toFixed(5);
+  $('gfGammaNote').textContent=d.gammaScore>5?'CE gamma > PE — pin risk above':d.gammaScore<-5?'PE gamma > CE — pin risk below':'Gamma neutral near ATM';
+  const gTotal=d.avgCEG+Math.abs(d.avgPEG)||1;
+  $('gfGammaCEBar').style.flex=d.avgCEG/gTotal*10;$('gfGammaPEBar').style.flex=Math.abs(d.avgPEG)/gTotal*10;
+
+  // Theta card
+  $('gfCETheta').textContent='CE: '+d.avgCET.toFixed(3);
+  $('gfPETheta').textContent='PE: '+d.avgPET.toFixed(3);
+  $('gfThetaNote').textContent=d.thetaScore>5?'PE theta draining faster — put writers active':d.thetaScore<-5?'CE theta draining faster — call writers active':'Theta decay balanced';
+  const tTotal=Math.abs(d.avgCET)+Math.abs(d.avgPET)||1;
+  $('gfThetaCEBar').style.flex=Math.abs(d.avgCET)/tTotal*10;$('gfThetaPEBar').style.flex=Math.abs(d.avgPET)/tTotal*10;
+
+  // Vega card
+  $('gfCEVega').textContent='CE: '+d.avgCEV.toFixed(3);
+  $('gfPEVega').textContent='PE: '+d.avgPEV.toFixed(3);
+  $('gfVegaNote').textContent=d.vegaScore>5?'CE vega dominant — calls sensitive to IV':d.vegaScore<-5?'PE vega dominant — fear buying active':'Vega balanced — neutral IV bias';
+  const vTotal=d.avgCEV+Math.abs(d.avgPEV)||1;
+  $('gfVegaCEBar').style.flex=d.avgCEV/vTotal*10;$('gfVegaPEBar').style.flex=Math.abs(d.avgPEV)/vTotal*10;
+
+  // ATM snapshot
+  $('gfAtmCEDelta').textContent=d.atmCEDelta.toFixed(4);
+  $('gfAtmPEDelta').textContent=d.atmPEDelta.toFixed(4);
+  $('gfAtmCEGamma').textContent=d.atmCEGamma.toFixed(5);
+  $('gfAtmPEGamma').textContent=d.atmPEGamma.toFixed(5);
+  $('gfAtmCETheta').textContent=d.atmCETheta.toFixed(3);
+  $('gfAtmPETheta').textContent=d.atmPETheta.toFixed(3);
+  $('gfAtmCEVega').textContent=d.atmCEVega.toFixed(3);
+  $('gfAtmPEVega').textContent=d.atmPEVega.toFixed(3);
+}
+
+// ════════════════════════════════════════════
+//  AUTO + STATUS + CLOCK
+// ════════════════════════════════════════════
+function toggleAuto(){
+  autoOn=!autoOn;const btn=$('autoBtn');
+  if(autoOn){btn.textContent='⏱ AUTO ON';btn.classList.add('on');autoTmr=setInterval(doFetch,5000);}
+  else{btn.textContent='⏱ AUTO 5s';btn.classList.remove('on');clearInterval(autoTmr);}
+}
+function setStatus(type,msg){$('sdot').className='sdot '+type;$('statusMsg').textContent=msg;}
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});$('stTime').textContent=t;},1000);
+setInterval(()=>{$('hdrTime').textContent=new Date().toLocaleTimeString();},1000);
+window.addEventListener('load',()=>{
+  refreshPlanPrices();
+  updateQR();
+  checkActivation();
+  $('tkIn').addEventListener('keydown',e=>{if(e.key==='Enter')connectLive();});
+  $('expSel').addEventListener('change',()=>{if(isLive)doFetch();});
+});
+</script>
+</body>
+</html>
